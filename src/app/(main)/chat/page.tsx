@@ -1,12 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
-import { MessageCircle, Clock, Check, X, Inbox } from "lucide-react";
+import { MessageCircle, Clock, Check, Inbox } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Avatar } from "@/components/ui/avatar";
 import { Tag } from "@/components/common/tag";
 import { CountdownTimer } from "@/components/common/countdown-timer";
@@ -27,6 +26,26 @@ interface ChatRoomWithDetails extends ChatRoom {
 type TabType = "active" | "pending" | "received";
 
 export default function ChatListPage() {
+  return (
+    <Suspense fallback={<ChatLoadingState />}>
+      <ChatListContent />
+    </Suspense>
+  );
+}
+
+function ChatLoadingState() {
+  return (
+    <>
+      <Header />
+      <main className="flex min-h-screen items-center justify-center">
+        <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      </main>
+      <BottomNav />
+    </>
+  );
+}
+
+function ChatListContent() {
   const { user } = useAuth();
   const { toast } = useToast();
   const searchParams = useSearchParams();
@@ -73,7 +92,7 @@ export default function ChatListPage() {
 
       // Fetch last message for each room
       const roomsWithMessages = await Promise.all(
-        (rooms || []).map(async (room) => {
+        (rooms || []).map(async (room: { id: string; profile: Profile } & ChatRoom) => {
           const { data: messages } = await supabase
             .from("messages")
             .select("*")

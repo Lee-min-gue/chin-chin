@@ -1,9 +1,11 @@
 "use server";
 
 import { nanoid } from "nanoid";
+import sharp from "sharp";
 import { createClient } from "@/lib/supabase/server";
 import { profileSchema, type ProfileFormData } from "@/lib/validations/profile";
 import { PROFILE_EXPIRY_HOURS } from "@/lib/constants";
+import type { InsertTables } from "@/types/database";
 
 export async function createProfile(data: ProfileFormData) {
   try {
@@ -67,7 +69,7 @@ export async function createProfile(data: ProfileFormData) {
     const photoBuffer = await validData.photo.arrayBuffer();
     const photoExtension = validData.photo.type.split("/")[1];
     const photoPath = `${user.id}/${shortId}/original.${photoExtension}`;
-    const blurredPath = `${user.id}/${shortId}/blurred.${photoExtension}`;
+    const blurredPath = `${user.id}/${shortId}/blurred.jpeg`;
 
     // Upload original photo
     const { error: uploadError } = await supabase.storage
@@ -82,12 +84,17 @@ export async function createProfile(data: ProfileFormData) {
       return { error: "사진 업로드에 실패했어요" };
     }
 
-    // For now, use same image for blurred (client-side blur is used for display)
-    // In production, you'd process this server-side with Sharp
+    // Generate blurred version using Sharp
+    const blurredBuffer = await sharp(Buffer.from(photoBuffer))
+      .resize(400)
+      .blur(30)
+      .jpeg({ quality: 60 })
+      .toBuffer();
+
     await supabase.storage
       .from("profiles")
-      .upload(blurredPath, photoBuffer, {
-        contentType: validData.photo.type,
+      .upload(blurredPath, blurredBuffer, {
+        contentType: "image/jpeg",
         upsert: true,
       });
 
@@ -105,36 +112,39 @@ export async function createProfile(data: ProfileFormData) {
     expiresAt.setHours(expiresAt.getHours() + PROFILE_EXPIRY_HOURS);
 
     // Create profile
+    const profileData: InsertTables<"profiles"> = {
+      short_id: shortId,
+      creator_id: user.id,
+      photo_url: blurredUrl.publicUrl,
+      original_photo_url: originalUrl.publicUrl,
+      age: validData.age,
+      gender: validData.gender,
+      occupation_category: validData.occupationCategory,
+      bio: validData.bio,
+      interest_tags: validData.interestTags,
+      mbti: validData.mbti || null,
+      music_genre: validData.musicGenre || null,
+      instagram_id: validData.instagramId || null,
+      kakao_open_chat_id: validData.kakaoOpenChatId || null,
+      expires_at: expiresAt.toISOString(),
+    };
+
     const { data: profile, error: insertError } = await supabase
       .from("profiles")
-      .insert({
-        short_id: shortId,
-        creator_id: user.id,
-        photo_url: blurredUrl.publicUrl,
-        original_photo_url: originalUrl.publicUrl,
-        age: validData.age,
-        gender: validData.gender,
-        occupation_category: validData.occupationCategory,
-        bio: validData.bio,
-        interest_tags: validData.interestTags,
-        mbti: validData.mbti || null,
-        music_genre: validData.musicGenre || null,
-        instagram_id: validData.instagramId || null,
-        kakao_open_chat_id: validData.kakaoOpenChatId || null,
-        expires_at: expiresAt.toISOString(),
-      })
+      .insert(profileData as never)
       .select("id, short_id")
       .single();
 
-    if (insertError) {
+    if (insertError || !profile) {
       console.error("Insert error:", insertError);
       return { error: "프로필 생성에 실패했어요" };
     }
 
+    const result = profile as { id: string; short_id: string };
     return {
       success: true,
-      profileId: profile.id,
-      shortId: profile.short_id,
+      profileId: result.id,
+      shortId: result.short_id,
     };
   } catch (error) {
     console.error("Create profile error:", error);

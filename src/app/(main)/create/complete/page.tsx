@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import {
@@ -22,6 +22,25 @@ import { getProfileUrl } from "@/lib/utils";
 import type { Profile } from "@/types/database";
 
 export default function CreateCompletePage() {
+  return (
+    <Suspense fallback={<LoadingState />}>
+      <CreateCompleteContent />
+    </Suspense>
+  );
+}
+
+function LoadingState() {
+  return (
+    <>
+      <Header />
+      <main className="flex min-h-screen items-center justify-center">
+        <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      </main>
+    </>
+  );
+}
+
+function CreateCompleteContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { toast } = useToast();
@@ -38,6 +57,8 @@ export default function CreateCompletePage() {
     }
 
     async function fetchProfile() {
+      if (!profileId) return;
+
       const supabase = createClient();
       const { data, error } = await supabase
         .from("profiles")
@@ -50,7 +71,7 @@ export default function CreateCompletePage() {
         return;
       }
 
-      setProfile(data);
+      setProfile(data as Profile);
       setIsLoading(false);
     }
 

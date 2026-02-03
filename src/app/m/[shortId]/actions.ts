@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { MAX_DAILY_CHAT_REQUESTS } from "@/lib/constants";
+import type { Profile, ChatRoom } from "@/types/database";
 
 export async function requestChat(profileId: string) {
   try {
@@ -18,15 +19,17 @@ export async function requestChat(profileId: string) {
     }
 
     // Get profile
-    const { data: profile, error: profileError } = await supabase
+    const { data: profileData, error: profileError } = await supabase
       .from("profiles")
       .select("*")
       .eq("id", profileId)
       .single();
 
-    if (profileError || !profile) {
+    if (profileError || !profileData) {
       return { error: "프로필을 찾을 수 없어요" };
     }
+
+    const profile = profileData as Profile;
 
     // Check if profile is active
     if (!profile.is_active || new Date(profile.expires_at) < new Date()) {
@@ -39,12 +42,14 @@ export async function requestChat(profileId: string) {
     }
 
     // Check if already requested
-    const { data: existingRoom } = await supabase
+    const { data: existingRoomData } = await supabase
       .from("chat_rooms")
       .select("id, status")
       .eq("profile_id", profileId)
       .eq("requester_id", user.id)
       .single();
+
+    const existingRoom = existingRoomData as { id: string; status: ChatRoom["status"] } | null;
 
     if (existingRoom) {
       if (existingRoom.status === "pending") {
@@ -77,26 +82,29 @@ export async function requestChat(profileId: string) {
     const targetId = profile.target_id || profile.creator_id;
 
     // Create chat room
-    const { data: chatRoom, error: insertError } = await supabase
+    const { data: chatRoomData, error: insertError } = await supabase
       .from("chat_rooms")
       .insert({
         profile_id: profileId,
         requester_id: user.id,
         target_id: targetId,
         status: "pending",
-      })
+      } as never)
       .select("id")
       .single();
 
-    if (insertError) {
+    if (insertError || !chatRoomData) {
       console.error("Chat room insert error:", insertError);
       return { error: "대화 신청에 실패했어요" };
     }
 
+    const chatRoom = chatRoomData as { id: string };
+
     // Increment chat request count
-    await supabase.rpc("increment_chat_request_count", {
-      profile_uuid: profileId,
-    });
+    await supabase
+      .from("profiles")
+      .update({ chat_request_count: profile.chat_request_count + 1 } as never)
+      .eq("id", profileId);
 
     // Create notification for target user
     await supabase.from("notifications").insert({
@@ -105,7 +113,7 @@ export async function requestChat(profileId: string) {
       title: "새로운 대화 신청",
       message: `누군가가 대화를 신청했어요! 확인해보세요.`,
       link_url: `/chat?pending=${chatRoom.id}`,
-    });
+    } as never);
 
     // TODO: Send Kakao notification
 

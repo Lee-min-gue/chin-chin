@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createAdminClient } from "@/lib/supabase/server";
+import { createServerClient, type CookieOptions } from "@supabase/ssr";
+import type { Database } from "@/types/database";
+
+type CookieToSet = { name: string; value: string; options?: CookieOptions };
 
 interface KakaoTokenResponse {
   access_token: string;
@@ -37,20 +40,21 @@ export async function GET(request: NextRequest) {
 
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 
-  // Handle error from Kakao
   if (error) {
-    console.error("Kakao OAuth error:", error);
-    return NextResponse.redirect(
-      `${baseUrl}/login?error=kakao_auth_failed`
-    );
+    console.error("[kakao-callback] OAuth error:", error);
+    return NextResponse.redirect(`${baseUrl}/login?error=kakao_auth_failed`);
   }
 
   if (!code) {
     return NextResponse.redirect(`${baseUrl}/login?error=no_code`);
   }
 
+  // Collect cookies to set on the final response
+  const pendingCookies: CookieToSet[] = [];
+
   try {
-    // Exchange code for token
+    // 1. Exchange code for Kakao tokens
+    console.log("[kakao-callback] Step 1: Exchanging code for tokens...");
     const tokenResponse = await fetch("https://kauth.kakao.com/oauth/token", {
       method: "POST",
       headers: {
@@ -67,15 +71,17 @@ export async function GET(request: NextRequest) {
 
     if (!tokenResponse.ok) {
       const errorData = await tokenResponse.text();
-      console.error("Token exchange failed:", errorData);
+      console.error("[kakao-callback] Token exchange failed:", errorData);
       return NextResponse.redirect(
         `${baseUrl}/login?error=token_exchange_failed`
       );
     }
 
     const tokenData: KakaoTokenResponse = await tokenResponse.json();
+    console.log("[kakao-callback] Step 1 done: Got tokens");
 
-    // Get user info from Kakao
+    // 2. Get user info from Kakao
+    console.log("[kakao-callback] Step 2: Fetching user info...");
     const userResponse = await fetch("https://kapi.kakao.com/v2/user/me", {
       headers: {
         Authorization: `Bearer ${tokenData.access_token}`,
@@ -84,15 +90,15 @@ export async function GET(request: NextRequest) {
     });
 
     if (!userResponse.ok) {
-      console.error("Failed to get user info");
+      console.error("[kakao-callback] Failed to get user info");
       return NextResponse.redirect(
         `${baseUrl}/login?error=user_info_failed`
       );
     }
 
     const kakaoUser: KakaoUserResponse = await userResponse.json();
+    console.log("[kakao-callback] Step 2 done: kakao_id =", kakaoUser.id);
 
-    // Get profile info
     const nickname =
       kakaoUser.kakao_account?.profile?.nickname ||
       kakaoUser.properties?.nickname ||
@@ -102,56 +108,45 @@ export async function GET(request: NextRequest) {
       kakaoUser.properties?.profile_image ||
       null;
 
-    // Upsert user in our database
-    const supabase = await createAdminClient();
+    const email = `${kakaoUser.id}@kakao.chinchin.app`;
 
-    // Check if user exists
-    const { data: existingUser } = await supabase
-      .from("users")
-      .select("id")
-      .eq("kakao_id", kakaoUser.id)
-      .single();
+    // Admin client for user management (service role key)
+    const adminSupabase = createServerClient<Database>(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+      {
+        cookies: {
+          getAll() {
+            return request.cookies.getAll();
+          },
+          setAll() {
+            // Admin client doesn't need to set response cookies
+          },
+        },
+      }
+    );
 
-    let userId: string;
+    // Regular client for session management (collects cookies)
+    const supabase = createServerClient<Database>(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          getAll() {
+            return request.cookies.getAll();
+          },
+          setAll(cookiesToSet: CookieToSet[]) {
+            pendingCookies.push(...cookiesToSet);
+          },
+        },
+      }
+    );
 
-    if (existingUser) {
-      // Update existing user
-      const { error: updateError } = await supabase
-        .from("users")
-        .update({
-          nickname,
-          profile_image_url: profileImage,
-          kakao_access_token: tokenData.access_token,
-          kakao_refresh_token: tokenData.refresh_token,
-          last_login_at: new Date().toISOString(),
-        })
-        .eq("kakao_id", kakaoUser.id);
-
-      if (updateError) throw updateError;
-      userId = existingUser.id;
-    } else {
-      // Create new user
-      const { data: newUser, error: insertError } = await supabase
-        .from("users")
-        .insert({
-          kakao_id: kakaoUser.id,
-          nickname,
-          profile_image_url: profileImage,
-          kakao_access_token: tokenData.access_token,
-          kakao_refresh_token: tokenData.refresh_token,
-        })
-        .select("id")
-        .single();
-
-      if (insertError) throw insertError;
-      userId = newUser.id;
-    }
-
-    // Create Supabase session
-    // Using custom auth - sign in with the user's UUID
-    const { data: authData, error: authError } =
-      await supabase.auth.admin.createUser({
-        email: `${kakaoUser.id}@kakao.chinchin.app`,
+    // 3. Create auth user if not exists
+    console.log("[kakao-callback] Step 3: Creating/finding auth user...");
+    const { data: createData, error: createError } =
+      await adminSupabase.auth.admin.createUser({
+        email,
         email_confirm: true,
         user_metadata: {
           kakao_id: kakaoUser.id,
@@ -160,37 +155,121 @@ export async function GET(request: NextRequest) {
         },
       });
 
-    // If user already exists in auth, just update and sign in
-    if (authError?.message?.includes("already been registered")) {
-      // Get the existing auth user
-      const { data: authUsers } = await supabase.auth.admin.listUsers();
-      const authUser = authUsers?.users?.find(
-        (u) => u.email === `${kakaoUser.id}@kakao.chinchin.app`
-      );
+    let authUserId: string;
 
-      if (authUser) {
-        // Generate a magic link / session for this user
-        const { data: sessionData, error: sessionError } =
-          await supabase.auth.admin.generateLink({
-            type: "magiclink",
-            email: authUser.email!,
-          });
+    if (createData?.user) {
+      authUserId = createData.user.id;
+      console.log("[kakao-callback] Step 3 done: New auth user created:", authUserId);
+    } else if (createError?.message?.includes("already been registered")) {
+      // User already exists - find and update metadata
+      const {
+        data: { users: authUsers },
+      } = await adminSupabase.auth.admin.listUsers();
+      const existingAuthUser = authUsers?.find((u) => u.email === email);
 
-        if (sessionError) throw sessionError;
-
-        // Redirect with the token
-        const response = NextResponse.redirect(`${baseUrl}/`);
-
-        // Set auth cookies via the token
-        // In production, you'd handle this more securely
-        return response;
+      if (!existingAuthUser) {
+        throw new Error("Auth user not found after registration check");
       }
+
+      authUserId = existingAuthUser.id;
+      console.log("[kakao-callback] Step 3 done: Existing auth user found:", authUserId);
+
+      await adminSupabase.auth.admin.updateUserById(authUserId, {
+        user_metadata: {
+          kakao_id: kakaoUser.id,
+          nickname,
+          profile_image: profileImage,
+        },
+      });
+    } else {
+      throw createError || new Error("Failed to create auth user");
     }
 
-    // Redirect to home
-    return NextResponse.redirect(`${baseUrl}/`);
-  } catch (error) {
-    console.error("Auth callback error:", error);
+    // 4. Generate magic link and verify OTP to establish session
+    console.log("[kakao-callback] Step 4: Generating magic link...");
+    const { data: linkData, error: linkError } =
+      await adminSupabase.auth.admin.generateLink({
+        type: "magiclink",
+        email,
+      });
+
+    if (linkError || !linkData) {
+      console.error("[kakao-callback] generateLink error:", linkError);
+      throw linkError || new Error("Failed to generate magic link");
+    }
+
+    console.log("[kakao-callback] Step 5: Verifying OTP...");
+    const { error: verifyError } = await supabase.auth.verifyOtp({
+      token_hash: linkData.properties.hashed_token,
+      type: "magiclink",
+    });
+
+    if (verifyError) {
+      console.error("[kakao-callback] verifyOtp error:", verifyError);
+      throw verifyError;
+    }
+    console.log("[kakao-callback] Step 5 done: Session established");
+
+    // 5. Upsert user in our users table (using auth user ID as users.id)
+    console.log("[kakao-callback] Step 6: Upserting user in DB...");
+    const { data: existingUser } = await adminSupabase
+      .from("users")
+      .select("id")
+      .eq("kakao_id", kakaoUser.id)
+      .single();
+
+    if (existingUser) {
+      // Fix ID mismatch: users.id must equal Supabase auth user ID
+      const needsIdFix = (existingUser as { id: string }).id !== authUserId;
+      if (needsIdFix) {
+        console.log("[kakao-callback] Fixing user ID mismatch:", (existingUser as { id: string }).id, "->", authUserId);
+        // Delete old record and re-insert with correct ID
+        await adminSupabase
+          .from("users")
+          .delete()
+          .eq("kakao_id", kakaoUser.id);
+        await adminSupabase.from("users").insert({
+          id: authUserId,
+          kakao_id: kakaoUser.id,
+          nickname,
+          profile_image_url: profileImage,
+          kakao_access_token: tokenData.access_token,
+          kakao_refresh_token: tokenData.refresh_token,
+        } as never);
+      } else {
+        await adminSupabase
+          .from("users")
+          .update({
+            nickname,
+            profile_image_url: profileImage,
+            kakao_access_token: tokenData.access_token,
+            kakao_refresh_token: tokenData.refresh_token,
+            last_login_at: new Date().toISOString(),
+          } as never)
+          .eq("kakao_id", kakaoUser.id);
+      }
+    } else {
+      await adminSupabase.from("users").insert({
+        id: authUserId,
+        kakao_id: kakaoUser.id,
+        nickname,
+        profile_image_url: profileImage,
+        kakao_access_token: tokenData.access_token,
+        kakao_refresh_token: tokenData.refresh_token,
+      } as never);
+    }
+    console.log("[kakao-callback] Step 6 done: User upserted");
+
+    // 6. Build redirect response AFTER all async work is done, then set cookies
+    const response = NextResponse.redirect(`${baseUrl}/`);
+    for (const cookie of pendingCookies) {
+      response.cookies.set(cookie.name, cookie.value, cookie.options);
+    }
+
+    console.log("[kakao-callback] All done. Redirecting to home. Cookies set:", pendingCookies.length);
+    return response;
+  } catch (err) {
+    console.error("[kakao-callback] Error:", err);
     return NextResponse.redirect(`${baseUrl}/login?error=auth_failed`);
   }
 }

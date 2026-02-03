@@ -3,7 +3,8 @@ import { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { BlindProfileView } from "@/components/profile/blind-profile-view";
 import { ExpiredProfileView } from "@/components/profile/expired-profile-view";
-import { isExpired, getProfileUrl } from "@/lib/utils";
+import { isExpired } from "@/lib/utils";
+import type { Profile } from "@/types/database";
 
 interface Props {
   params: Promise<{ shortId: string }>;
@@ -13,18 +14,19 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { shortId } = await params;
   const supabase = await createClient();
 
-  const { data: profile } = await supabase
+  const { data: profileData } = await supabase
     .from("profiles")
     .select("bio, age, gender, interest_tags, photo_url")
     .eq("short_id", shortId)
     .single();
 
-  if (!profile) {
+  if (!profileData) {
     return {
       title: "프로필을 찾을 수 없어요",
     };
   }
 
+  const profile = profileData as Pick<Profile, "bio" | "age" | "gender" | "interest_tags" | "photo_url">;
   const genderText = profile.gender === "male" ? "남" : "여";
   const title = `${profile.age}세 ${genderText} | 친친`;
   const description = profile.bio;
@@ -52,15 +54,17 @@ export default async function BlindProfilePage({ params }: Props) {
   const supabase = await createClient();
 
   // Fetch profile
-  const { data: profile, error } = await supabase
+  const { data: profileData, error } = await supabase
     .from("profiles")
     .select("*")
     .eq("short_id", shortId)
     .single();
 
-  if (error || !profile) {
+  if (error || !profileData) {
     notFound();
   }
+
+  const profile = profileData as Profile;
 
   // Check if expired
   if (isExpired(profile.expires_at) || !profile.is_active) {
@@ -68,7 +72,10 @@ export default async function BlindProfilePage({ params }: Props) {
   }
 
   // Increment view count (non-blocking)
-  supabase.rpc("increment_view_count", { profile_short_id: shortId });
+  supabase
+    .from("profiles")
+    .update({ view_count: profile.view_count + 1 } as never)
+    .eq("short_id", shortId);
 
   return <BlindProfileView profile={profile} />;
 }

@@ -1,7 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { createClient } from "@/lib/supabase/client";
+import { useEffect, useRef, useState } from "react";
 import type { User } from "@/types/database";
 
 interface AuthState {
@@ -16,32 +15,24 @@ export function useAuth() {
     isLoading: true,
     error: null,
   });
+  const didRun = useRef(false);
 
   useEffect(() => {
-    const supabase = createClient();
+    if (didRun.current) return;
+    didRun.current = true;
 
-    async function getUser() {
+    async function fetchUser() {
       try {
-        const {
-          data: { session },
-        } = await supabase.auth.getSession();
+        const res = await fetch("/api/auth/me");
+        const data = await res.json();
 
-        if (!session?.user) {
+        if (data.user) {
+          setState({ user: data.user, isLoading: false, error: null });
+        } else {
           setState({ user: null, isLoading: false, error: null });
-          return;
         }
-
-        // Get user from our users table
-        const { data: user, error } = await supabase
-          .from("users")
-          .select("*")
-          .eq("id", session.user.id)
-          .single();
-
-        if (error) throw error;
-
-        setState({ user, isLoading: false, error: null });
       } catch (error) {
+        console.error("[useAuth] error:", error);
         setState({
           user: null,
           isLoading: false,
@@ -50,33 +41,11 @@ export function useAuth() {
       }
     }
 
-    getUser();
-
-    // Listen for auth changes
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (event === "SIGNED_IN" && session?.user) {
-        const { data: user } = await supabase
-          .from("users")
-          .select("*")
-          .eq("id", session.user.id)
-          .single();
-
-        setState({ user, isLoading: false, error: null });
-      } else if (event === "SIGNED_OUT") {
-        setState({ user: null, isLoading: false, error: null });
-      }
-    });
-
-    return () => {
-      subscription.unsubscribe();
-    };
+    fetchUser();
   }, []);
 
   const signOut = async () => {
-    const supabase = createClient();
-    await supabase.auth.signOut();
+    await fetch("/api/auth/signout", { method: "POST" });
     setState({ user: null, isLoading: false, error: null });
   };
 
