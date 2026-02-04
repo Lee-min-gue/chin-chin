@@ -252,6 +252,26 @@ export type Database = {
           created_at?: string;
         };
       };
+      blocks: {
+        Row: {
+          id: string;
+          blocker_id: string;
+          blocked_id: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          blocker_id: string;
+          blocked_id: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          blocker_id?: string;
+          blocked_id?: string;
+          created_at?: string;
+        };
+      };
     };
     Views: {
       [_ in never]: never;
@@ -280,3 +300,4 @@ export type ChatRoom = Tables<"chat_rooms">;
 export type Message = Tables<"messages">;
 export type Notification = Tables<"notifications">;
 export type Report = Tables<"reports">;
+export type Block = Tables<"blocks">;

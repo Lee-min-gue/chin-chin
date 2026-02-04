@@ -1,18 +1,20 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import {
   Plus,
   Eye,
   MessageCircle,
-  Heart,
   Clock,
   Copy,
   Trash2,
-  MoreVertical,
   LogOut,
+  TrendingUp,
+  Ban,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -21,10 +23,20 @@ import { Tag } from "@/components/common/tag";
 import { CountdownTimer } from "@/components/common/countdown-timer";
 import { Header } from "@/components/layout/header";
 import { BottomNav } from "@/components/layout/bottom-nav";
+import { BlockedUsers } from "@/components/dashboard/blocked-users";
 import { useToast } from "@/components/ui/toaster";
 import { useAuth } from "@/hooks/use-auth";
 import { createClient } from "@/lib/supabase/client";
 import { getProfileUrl, isExpired } from "@/lib/utils";
+import { deleteProfile } from "./actions";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import type { Profile } from "@/types/database";
 
 type FilterType = "all" | "active" | "expired" | "success";
@@ -35,6 +47,9 @@ export default function DashboardPage() {
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [filter, setFilter] = useState<FilterType>("all");
+  const [showBlockedUsers, setShowBlockedUsers] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     if (!user) return;
@@ -66,6 +81,35 @@ export default function DashboardPage() {
     });
   };
 
+  const handleDelete = useCallback(async () => {
+    if (!deleteTarget) return;
+    setIsDeleting(true);
+    try {
+      const result = await deleteProfile(deleteTarget);
+      if (result.error) {
+        toast({
+          title: "삭제 실패",
+          description: result.error,
+          variant: "destructive",
+        });
+        return;
+      }
+      setProfiles((prev) =>
+        prev.map((p) =>
+          p.id === deleteTarget ? { ...p, is_active: false } : p
+        )
+      );
+      toast({
+        title: "삭제 완료",
+        description: "프로필이 삭제되었어요",
+        variant: "success",
+      });
+    } finally {
+      setIsDeleting(false);
+      setDeleteTarget(null);
+    }
+  }, [deleteTarget, toast]);
+
   const handleLogout = async () => {
     await signOut();
     window.location.href = "/";
@@ -80,7 +124,6 @@ export default function DashboardPage() {
       case "expired":
         return expired;
       case "success":
-        // Profiles with revealed chats would need additional data
         return profile.chat_request_count > 0;
       default:
         return true;
@@ -94,6 +137,11 @@ export default function DashboardPage() {
     totalViews: profiles.reduce((sum, p) => sum + p.view_count, 0),
     totalRequests: profiles.reduce((sum, p) => sum + p.chat_request_count, 0),
   };
+
+  const conversionRate =
+    stats.totalViews > 0
+      ? ((stats.totalRequests / stats.totalViews) * 100).toFixed(1)
+      : "0";
 
   if (authLoading) {
     return (
@@ -135,7 +183,7 @@ export default function DashboardPage() {
 
         {/* Stats cards */}
         <div className="px-4 py-4">
-          <div className="mx-auto grid max-w-lg grid-cols-3 gap-3">
+          <div className="mx-auto grid max-w-lg grid-cols-4 gap-2">
             <Card>
               <CardContent className="p-3 text-center">
                 <div className="text-2xl font-bold text-primary">
@@ -158,6 +206,17 @@ export default function DashboardPage() {
                   {stats.totalRequests}
                 </div>
                 <div className="text-xs text-muted-foreground">대화 신청</div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-3 text-center">
+                <div className="flex items-center justify-center gap-0.5">
+                  <TrendingUp className="h-3.5 w-3.5 text-green-600" />
+                  <span className="text-xl font-bold text-green-600">
+                    {conversionRate}%
+                  </span>
+                </div>
+                <div className="text-xs text-muted-foreground">전환율</div>
               </CardContent>
             </Card>
           </div>
@@ -284,21 +343,58 @@ export default function DashboardPage() {
                           </div>
 
                           {/* Actions */}
-                          {!expired && (
+                          <div className="flex flex-col gap-1">
+                            {!expired && (
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() =>
+                                  handleCopyLink(profile.short_id)
+                                }
+                              >
+                                <Copy className="h-5 w-5" />
+                              </Button>
+                            )}
                             <Button
                               variant="ghost"
                               size="icon"
-                              onClick={() => handleCopyLink(profile.short_id)}
+                              onClick={() => setDeleteTarget(profile.id)}
+                              className="text-muted-foreground hover:text-destructive"
                             >
-                              <Copy className="h-5 w-5" />
+                              <Trash2 className="h-4 w-4" />
                             </Button>
-                          )}
+                          </div>
                         </div>
                       </CardContent>
                     </Card>
                   </motion.div>
                 );
               })
+            )}
+          </div>
+        </div>
+
+        {/* Blocked users section */}
+        <div className="px-4 pt-6">
+          <div className="mx-auto max-w-lg">
+            <button
+              onClick={() => setShowBlockedUsers(!showBlockedUsers)}
+              className="flex w-full items-center justify-between rounded-lg bg-white px-4 py-3 text-sm font-medium"
+            >
+              <div className="flex items-center gap-2">
+                <Ban className="h-4 w-4 text-muted-foreground" />
+                차단 관리
+              </div>
+              {showBlockedUsers ? (
+                <ChevronUp className="h-4 w-4 text-muted-foreground" />
+              ) : (
+                <ChevronDown className="h-4 w-4 text-muted-foreground" />
+              )}
+            </button>
+            {showBlockedUsers && (
+              <div className="mt-2">
+                <BlockedUsers />
+              </div>
             )}
           </div>
         </div>
@@ -313,6 +409,40 @@ export default function DashboardPage() {
       </main>
 
       <BottomNav />
+
+      {/* Delete confirmation dialog */}
+      <Dialog
+        open={deleteTarget !== null}
+        onOpenChange={(open) => !open && setDeleteTarget(null)}
+      >
+        <DialogContent className="mx-4 max-w-sm">
+          <DialogHeader>
+            <DialogTitle>프로필을 삭제하시겠어요?</DialogTitle>
+            <DialogDescription>
+              삭제된 프로필은 더 이상 공유할 수 없어요. 기존 대화에는 영향이
+              없어요.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="flex-row gap-2">
+            <Button
+              variant="outline"
+              className="flex-1"
+              onClick={() => setDeleteTarget(null)}
+              disabled={isDeleting}
+            >
+              취소
+            </Button>
+            <Button
+              variant="destructive"
+              className="flex-1"
+              onClick={handleDelete}
+              loading={isDeleting}
+            >
+              삭제하기
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }

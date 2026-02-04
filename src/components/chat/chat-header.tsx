@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Eye } from "lucide-react";
+import { ArrowLeft, Eye, MoreVertical, Flag, Ban } from "lucide-react";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { CountdownTimer } from "@/components/common/countdown-timer";
@@ -14,6 +14,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { ReportDialog } from "@/components/chat/report-dialog";
+import { useToast } from "@/components/ui/toaster";
+import { reportUser, blockUser } from "@/app/(main)/chat/[roomId]/actions";
 import type { ChatRoom, Profile } from "@/types/database";
 
 interface ChatHeaderProps {
@@ -30,8 +33,13 @@ export function ChatHeader({
   onExpire,
 }: ChatHeaderProps) {
   const router = useRouter();
+  const { toast } = useToast();
   const [showRevealDialog, setShowRevealDialog] = useState(false);
+  const [showBlockDialog, setShowBlockDialog] = useState(false);
+  const [showReportDialog, setShowReportDialog] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
   const [isRequesting, setIsRequesting] = useState(false);
+  const [isBlocking, setIsBlocking] = useState(false);
 
   const profile = room.profile;
   const canRequestReveal =
@@ -46,6 +54,51 @@ export function ChatHeader({
     } finally {
       setIsRequesting(false);
       setShowRevealDialog(false);
+    }
+  };
+
+  const handleReport = useCallback(
+    async (reason: string, description?: string) => {
+      const result = await reportUser(room.id, reason, description);
+      if (result.error) {
+        toast({
+          title: "신고 실패",
+          description: result.error,
+          variant: "destructive",
+        });
+        return;
+      }
+      toast({
+        title: "신고 완료",
+        description: "신고가 접수되었어요. 검토 후 조치할게요.",
+        variant: "success",
+      });
+      setShowReportDialog(false);
+    },
+    [room.id, toast]
+  );
+
+  const handleBlock = async () => {
+    setIsBlocking(true);
+    try {
+      const result = await blockUser(room.id);
+      if (result.error) {
+        toast({
+          title: "차단 실패",
+          description: result.error,
+          variant: "destructive",
+        });
+        return;
+      }
+      toast({
+        title: "차단 완료",
+        description: "해당 사용자를 차단했어요.",
+        variant: "success",
+      });
+      router.push("/chat");
+    } finally {
+      setIsBlocking(false);
+      setShowBlockDialog(false);
     }
   };
 
@@ -75,7 +128,7 @@ export function ChatHeader({
         </div>
 
         {/* Timer or reveal button */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1">
           {room.status === "active" && room.expires_at && (
             <CountdownTimer
               expiresAt={room.expires_at}
@@ -93,6 +146,47 @@ export function ChatHeader({
               <Eye className="h-4 w-4" />
             </Button>
           )}
+
+          {/* More menu */}
+          <div className="relative">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowMenu(!showMenu)}
+            >
+              <MoreVertical className="h-4 w-4" />
+            </Button>
+            {showMenu && (
+              <>
+                <div
+                  className="fixed inset-0 z-50"
+                  onClick={() => setShowMenu(false)}
+                />
+                <div className="absolute right-0 top-full z-50 mt-1 w-36 rounded-lg border bg-white py-1 shadow-lg">
+                  <button
+                    className="flex w-full items-center gap-2 px-4 py-2.5 text-sm text-foreground hover:bg-muted"
+                    onClick={() => {
+                      setShowMenu(false);
+                      setShowReportDialog(true);
+                    }}
+                  >
+                    <Flag className="h-4 w-4" />
+                    신고하기
+                  </button>
+                  <button
+                    className="flex w-full items-center gap-2 px-4 py-2.5 text-sm text-destructive hover:bg-muted"
+                    onClick={() => {
+                      setShowMenu(false);
+                      setShowBlockDialog(true);
+                    }}
+                  >
+                    <Ban className="h-4 w-4" />
+                    차단하기
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
         </div>
       </header>
 
@@ -124,6 +218,44 @@ export function ChatHeader({
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Block confirmation dialog */}
+      <Dialog open={showBlockDialog} onOpenChange={setShowBlockDialog}>
+        <DialogContent className="mx-4 max-w-sm">
+          <DialogHeader>
+            <DialogTitle>이 사용자를 차단하시겠어요?</DialogTitle>
+            <DialogDescription>
+              차단하면 이 채팅방이 종료되고, 해당 사용자와 더 이상 대화할 수
+              없어요. 대시보드에서 차단을 해제할 수 있어요.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="flex-row gap-2">
+            <Button
+              variant="outline"
+              className="flex-1"
+              onClick={() => setShowBlockDialog(false)}
+              disabled={isBlocking}
+            >
+              취소
+            </Button>
+            <Button
+              variant="destructive"
+              className="flex-1"
+              onClick={handleBlock}
+              loading={isBlocking}
+            >
+              차단하기
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Report dialog */}
+      <ReportDialog
+        open={showReportDialog}
+        onOpenChange={setShowReportDialog}
+        onSubmit={handleReport}
+      />
     </>
   );
 }

@@ -139,10 +139,11 @@ export default function ChatRoomPage({ params }: Props) {
         return;
       }
       // Optimistic: immediately add sent message to local state
-      if (result.message) {
-        addMessage(result.message as import("@/types/database").Message);
+      const msg = (result as { message?: unknown }).message;
+      if (msg) {
+        addMessage(msg as import("@/types/database").Message);
       }
-      if (result.contactFiltered) {
+      if ((result as { contactFiltered?: boolean }).contactFiltered) {
         toast({
           title: "연락처 정보 필터링",
           description: "연락처 정보가 포함되어 자동으로 필터링되었어요",

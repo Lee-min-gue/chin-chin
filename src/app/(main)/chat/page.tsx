@@ -90,20 +90,52 @@ function ChatListContent() {
         return;
       }
 
-      // Fetch last message for each room
-      const roomsWithMessages = await Promise.all(
-        (rooms || []).map(async (room: { id: string; profile: Profile } & ChatRoom) => {
-          const { data: messages } = await supabase
-            .from("messages")
-            .select("*")
-            .eq("room_id", room.id)
-            .order("created_at", { ascending: false })
-            .limit(1);
+      // Fetch blocked user IDs
+      const { data: blocksData } = await supabase
+        .from("blocks")
+        .select("blocked_id")
+        .eq("blocker_id", user!.id);
 
-          return {
-            ...room,
-            lastMessage: messages?.[0],
-          };
+      const blockedIds = new Set(
+        (blocksData || []).map((b: { blocked_id: string }) => b.blocked_id)
+      );
+
+      // Filter out blocked users
+      const filteredRoomList = (rooms || []).filter(
+        (room: ChatRoom) => {
+          const otherId =
+            room.requester_id === user!.id
+              ? room.target_id
+              : room.requester_id;
+          return !blockedIds.has(otherId);
+        }
+      );
+
+      // Batch fetch last messages for all rooms in a single query
+      const roomIds = filteredRoomList.map((r: { id: string }) => r.id);
+      let lastMessages: Record<string, Message> = {};
+
+      if (roomIds.length > 0) {
+        const { data: allMessages } = await supabase
+          .from("messages")
+          .select("*")
+          .in("room_id", roomIds)
+          .order("created_at", { ascending: false });
+
+        // Group by room_id, keep only the first (latest) message per room
+        if (allMessages) {
+          for (const msg of allMessages as Message[]) {
+            if (!lastMessages[msg.room_id]) {
+              lastMessages[msg.room_id] = msg;
+            }
+          }
+        }
+      }
+
+      const roomsWithMessages = filteredRoomList.map(
+        (room: { id: string; profile: Profile } & ChatRoom) => ({
+          ...room,
+          lastMessage: lastMessages[room.id],
         })
       );
 

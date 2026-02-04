@@ -81,6 +81,19 @@ export async function requestChat(profileId: string) {
     // If profile has a target_id, use that. Otherwise, use creator_id
     const targetId = profile.target_id || profile.creator_id;
 
+    // Check if blocked by either party
+    const { data: blockData } = await supabase
+      .from("blocks")
+      .select("id")
+      .or(
+        `and(blocker_id.eq.${user.id},blocked_id.eq.${targetId}),and(blocker_id.eq.${targetId},blocked_id.eq.${user.id})`
+      )
+      .limit(1);
+
+    if (blockData && blockData.length > 0) {
+      return { error: "대화를 신청할 수 없는 사용자예요" };
+    }
+
     // Create chat room
     const { data: chatRoomData, error: insertError } = await supabase
       .from("chat_rooms")

@@ -87,3 +87,12 @@ export const MAX_DAILY_PROFILE_CREATIONS = 10;
 
 // Maximum daily chat requests
 export const MAX_DAILY_CHAT_REQUESTS = 10;
+
+// Report reasons (신고 사유)
+export const REPORT_REASONS = [
+  { value: "harassment", label: "불쾌한 언행" },
+  { value: "inappropriate", label: "부적절한 콘텐츠" },
+  { value: "spam", label: "스팸/광고" },
+  { value: "scam", label: "사기 의심" },
+  { value: "other", label: "기타" },
+] as const;

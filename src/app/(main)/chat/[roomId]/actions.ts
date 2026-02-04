@@ -1,9 +1,11 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
-import { CHAT_ROOM_EXPIRY_HOURS } from "@/lib/constants";
+import { CHAT_ROOM_EXPIRY_HOURS, REPORT_REASONS } from "@/lib/constants";
 import { filterContactInfo } from "@/lib/utils";
 import type { ChatRoom, Profile } from "@/types/database";
+
+const VALID_REPORT_REASONS = REPORT_REASONS.map((r) => r.value);
 
 export async function acceptChatRequest(roomId: string) {
   try {
@@ -331,6 +333,113 @@ export async function acceptProfileReveal(roomId: string) {
     };
   } catch (error) {
     console.error("Accept profile reveal error:", error);
+    return { error: "알 수 없는 오류가 발생했어요" };
+  }
+}
+
+export async function reportUser(
+  roomId: string,
+  reason: string,
+  description?: string
+) {
+  try {
+    const supabase = await createClient();
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
+    if (authError || !user) return { error: "로그인이 필요해요" };
+
+    if (!VALID_REPORT_REASONS.includes(reason as (typeof VALID_REPORT_REASONS)[number])) {
+      return { error: "올바른 신고 사유를 선택해주세요" };
+    }
+
+    const { data: roomData } = await supabase
+      .from("chat_rooms")
+      .select("*")
+      .eq("id", roomId)
+      .single();
+
+    if (!roomData) return { error: "채팅방을 찾을 수 없어요" };
+    const room = roomData as ChatRoom;
+
+    if (room.requester_id !== user.id && room.target_id !== user.id) {
+      return { error: "권한이 없어요" };
+    }
+
+    const reportedId =
+      room.requester_id === user.id ? room.target_id : room.requester_id;
+
+    // Check duplicate report
+    const { data: existing } = await supabase
+      .from("reports")
+      .select("id")
+      .eq("reporter_id", user.id)
+      .eq("reported_id", reportedId)
+      .eq("room_id", roomId)
+      .maybeSingle();
+
+    if (existing) return { error: "이미 신고한 사용자예요" };
+
+    const { error: insertError } = await supabase.from("reports").insert({
+      reporter_id: user.id,
+      reported_id: reportedId,
+      room_id: roomId,
+      reason,
+      description: description || null,
+    } as never);
+
+    if (insertError) return { error: "신고에 실패했어요" };
+
+    return { success: true };
+  } catch (error) {
+    console.error("Report user error:", error);
+    return { error: "알 수 없는 오류가 발생했어요" };
+  }
+}
+
+export async function blockUser(roomId: string) {
+  try {
+    const supabase = await createClient();
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
+    if (authError || !user) return { error: "로그인이 필요해요" };
+
+    const { data: roomData } = await supabase
+      .from("chat_rooms")
+      .select("*")
+      .eq("id", roomId)
+      .single();
+
+    if (!roomData) return { error: "채팅방을 찾을 수 없어요" };
+    const room = roomData as ChatRoom;
+
+    if (room.requester_id !== user.id && room.target_id !== user.id) {
+      return { error: "권한이 없어요" };
+    }
+
+    const blockedId =
+      room.requester_id === user.id ? room.target_id : room.requester_id;
+
+    // Insert block (ignore if already exists)
+    await supabase.from("blocks").insert({
+      blocker_id: user.id,
+      blocked_id: blockedId,
+    } as never);
+
+    // Expire the chat room
+    if (room.status === "active" || room.status === "pending") {
+      await supabase
+        .from("chat_rooms")
+        .update({ status: "expired" } as never)
+        .eq("id", roomId);
+    }
+
+    return { success: true };
+  } catch (error) {
+    console.error("Block user error:", error);
     return { error: "알 수 없는 오류가 발생했어요" };
   }
 }
