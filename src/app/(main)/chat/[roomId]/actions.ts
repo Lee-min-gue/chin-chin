@@ -423,11 +423,16 @@ export async function blockUser(roomId: string) {
     const blockedId =
       room.requester_id === user.id ? room.target_id : room.requester_id;
 
-    // Insert block (ignore if already exists)
-    await supabase.from("blocks").insert({
+    // Insert block (ignore duplicate — UNIQUE constraint)
+    const { error: blockError } = await supabase.from("blocks").insert({
       blocker_id: user.id,
       blocked_id: blockedId,
     } as never);
+
+    // Ignore duplicate key error (23505), fail on others
+    if (blockError && !blockError.code?.includes("23505")) {
+      return { error: "차단에 실패했어요" };
+    }
 
     // Expire the chat room
     if (room.status === "active" || room.status === "pending") {
