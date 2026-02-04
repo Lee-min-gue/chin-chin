@@ -288,7 +288,7 @@ function CreateCompleteContent() {
           >
             <h3 className="mb-2 font-bold">💡 공유 팁</h3>
             <ul className="space-y-1 text-sm text-muted-foreground">
-              <li>• 스토리에 "이 친구 어때요?" 같은 문구를 추가해보세요</li>
+              <li>• 스토리에 &ldquo;이 친구 어때요?&rdquo; 같은 문구를 추가해보세요</li>
               <li>• 링크 스티커를 사용하면 터치 한 번으로 접속할 수 있어요</li>
               <li>• 24시간 후 링크가 만료되니 서둘러 공유하세요!</li>
             </ul>

@@ -15,8 +15,7 @@ interface UseRealtimeMessagesReturn {
 }
 
 export function useRealtimeMessages(
-  roomId: string,
-  currentUserId: string
+  roomId: string
 ): UseRealtimeMessagesReturn {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -53,7 +52,8 @@ export function useRealtimeMessages(
 
   // Realtime subscription
   useEffect(() => {
-    const channel = supabaseRef.current
+    const supabase = supabaseRef.current;
+    const channel = supabase
       .channel(`messages:${roomId}`)
       .on(
         "postgres_changes",
@@ -90,7 +90,7 @@ export function useRealtimeMessages(
       .subscribe();
 
     return () => {
-      supabaseRef.current.removeChannel(channel);
+      supabase.removeChannel(channel);
     };
   }, [roomId]);
 

@@ -113,7 +113,7 @@ function ChatListContent() {
 
       // Batch fetch last messages for all rooms in a single query
       const roomIds = filteredRoomList.map((r: { id: string }) => r.id);
-      let lastMessages: Record<string, Message> = {};
+      const lastMessages: Record<string, Message> = {};
 
       if (roomIds.length > 0) {
         const { data: allMessages } = await supabase

@@ -101,7 +101,7 @@ export default function ChatRoomPage({ params }: Props) {
 
   // Realtime messages
   const { messages, isLoading: messagesLoading, hasMore, loadMore, addMessage } =
-    useRealtimeMessages(roomId, user?.id || "");
+    useRealtimeMessages(roomId);
 
   // Mark messages as read (debounced)
   useEffect(() => {

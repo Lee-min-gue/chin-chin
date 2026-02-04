@@ -39,7 +39,8 @@ export function BottomNav() {
     fetchUnread();
 
     // Subscribe to new notifications
-    const channel = supabaseRef.current
+    const supabase = supabaseRef.current;
+    const channel = supabase
       .channel("bottom_nav_notifications")
       .on(
         "postgres_changes",
@@ -68,7 +69,7 @@ export function BottomNav() {
       .subscribe();
 
     return () => {
-      supabaseRef.current.removeChannel(channel);
+      supabase.removeChannel(channel);
     };
   }, [user]);
 
