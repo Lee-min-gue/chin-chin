@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { cn } from "@/lib/utils";
 
 interface LogoProps {
@@ -7,28 +8,29 @@ interface LogoProps {
   asLink?: boolean;
 }
 
-const sizeClasses = {
-  sm: "text-xl",
-  md: "text-2xl",
-  lg: "text-4xl",
+const sizeConfig = {
+  sm: { height: 24, width: 120 },
+  md: { height: 32, width: 160 },
+  lg: { height: 48, width: 240 },
 };
 
 export function Logo({ size = "md", className, asLink = true }: LogoProps) {
+  const { height, width } = sizeConfig[size];
+
   const content = (
-    <span
-      className={cn(
-        "font-display font-bold gradient-text",
-        sizeClasses[size],
-        className
-      )}
-    >
-      친친
-    </span>
+    <Image
+      src="/logo.png"
+      alt="친구의 친구"
+      width={width}
+      height={height}
+      className={cn("object-contain block mx-auto", className)}
+      priority
+    />
   );
 
   if (asLink) {
     return (
-      <Link href="/" className="inline-block">
+      <Link href="/" className="block">
         {content}
       </Link>
     );
