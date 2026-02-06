@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=390, initial-scale=1">
+  <title>친친 - 로그인</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: { DEFAULT: '#FF6B6B', dark: '#E55555', light: '#FFE5E5', foreground: '#FFFFFF' },
+            secondary: { DEFAULT: '#4ECDC4', foreground: '#FFFFFF' },
+            foreground: '#1A1A1A',
+            muted: { DEFAULT: '#F5F5F5', foreground: '#9A9A9A' },
+            border: '#E5E5E5',
+          },
+          fontFamily: { sans: ['Noto Sans KR', 'system-ui', 'sans-serif'] },
+        }
+      }
+    }
+  </script>
+  <style>
+    body { font-family: 'Noto Sans KR', system-ui, sans-serif; margin: 0; background: #f5f5f5; }
+    .device-frame { width: 390px; margin: 0 auto; background: #fff; min-height: 844px; position: relative; overflow: hidden; }
+  </style>
+</head>
+<body>
+  <div class="device-frame">
+    <main class="flex min-h-[844px] flex-col items-center justify-center px-4">
+      <div class="w-full max-w-sm space-y-8 text-center">
+        <div>
+          <div class="mb-4 text-5xl font-bold text-[#FF6B6B]" style="font-family: cursive;">친친</div>
+          <h1 class="text-2xl font-bold text-[#1A1A1A]">시작하기</h1>
+          <p class="mt-2 text-[#9A9A9A]">카카오 계정으로 간편하게 로그인하세요</p>
+        </div>
+
+        <button class="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#FEE500] text-[#191919] h-14 px-8 py-4 text-lg font-semibold">
+          <svg viewBox="0 0 24 24" class="h-6 w-6" fill="currentColor">
+            <path d="M12 3c-5.148 0-9.324 3.39-9.324 7.571 0 2.722 1.804 5.107 4.516 6.449-.199.742-.722 2.687-.826 3.104-.13.525.192.518.404.377.166-.11 2.644-1.8 3.713-2.53.498.073 1.008.112 1.527.112 5.148 0 9.324-3.39 9.324-7.571S17.148 3 12 3z"/>
+          </svg>
+          카카오톡으로 시작하기
+        </button>
+
+        <p class="text-xs text-[#9A9A9A]">
+          로그인 시 <a href="#" class="underline">서비스 이용약관</a>과 <a href="#" class="underline">개인정보 처리방침</a>에 동의하게 됩니다.
+        </p>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=390, initial-scale=1">
+  <title>친친 - 채팅방</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: { DEFAULT: '#FF6B6B', dark: '#E55555', light: '#FFE5E5', foreground: '#FFFFFF' },
+            secondary: { DEFAULT: '#4ECDC4', foreground: '#FFFFFF' },
+            foreground: '#1A1A1A',
+            muted: { DEFAULT: '#F5F5F5', foreground: '#9A9A9A' },
+            border: '#E5E5E5',
+          },
+          fontFamily: { sans: ['Noto Sans KR', 'system-ui', 'sans-serif'] },
+          boxShadow: { soft: '0 2px 8px rgba(0,0,0,0.08)' },
+        }
+      }
+    }
+  </script>
+  <style>
+    body { font-family: 'Noto Sans KR', system-ui, sans-serif; margin: 0; background: #fff; }
+    .device-frame { width: 390px; margin: 0 auto; background: #fff; height: 844px; position: relative; overflow: hidden; display: flex; flex-direction: column; }
+  </style>
+</head>
+<body>
+  <div class="device-frame">
+    <!-- Chat Header -->
+    <header class="sticky top-0 z-40 flex items-center justify-between border-b border-[#E5E5E5] bg-white px-4 py-3">
+      <div class="flex items-center gap-3">
+        <button class="p-1">
+          <svg class="h-5 w-5 text-[#1A1A1A]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+        </button>
+        <div class="flex items-center gap-2">
+          <div class="h-8 w-8 rounded-full bg-gradient-to-br from-blue-200 to-green-200 overflow-hidden" style="filter: blur(2px);"></div>
+          <div>
+            <span class="font-medium text-sm text-[#1A1A1A]">27세 &middot; 여</span>
+            <div class="flex items-center gap-1 text-xs text-[#FF6B6B]">
+              <svg class="h-3 w-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              23:45:12
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="flex items-center gap-1">
+        <button class="flex h-9 w-9 items-center justify-center rounded-full text-[#9A9A9A]">
+          <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
+        <button class="flex h-9 w-9 items-center justify-center rounded-full text-[#9A9A9A]">
+          <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Messages area -->
+    <div class="flex-1 overflow-y-auto px-4 py-4 space-y-4 bg-[#FAFAFA]">
+      <!-- System message -->
+      <div class="text-center">
+        <span class="inline-block rounded-full bg-[#F5F5F5] px-4 py-1.5 text-xs text-[#9A9A9A]">대화가 시작되었어요! 48시간 동안 대화할 수 있어요</span>
+      </div>
+
+      <!-- Received message -->
+      <div class="flex items-end gap-2">
+        <div class="h-8 w-8 shrink-0 rounded-full bg-gradient-to-br from-blue-200 to-green-200 overflow-hidden" style="filter: blur(2px);"></div>
+        <div class="max-w-[70%]">
+          <div class="rounded-2xl rounded-bl-md bg-white px-4 py-2.5 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
+            <p class="text-sm text-[#1A1A1A]">안녕하세요! 프로필 보고 관심이 생겼어요 😊</p>
+          </div>
+          <span class="mt-1 block text-xs text-[#9A9A9A]">오후 2:30</span>
+        </div>
+      </div>
+
+      <!-- Sent message -->
+      <div class="flex items-end justify-end gap-2">
+        <div class="max-w-[70%]">
+          <div class="rounded-2xl rounded-br-md bg-[#FF6B6B] px-4 py-2.5">
+            <p class="text-sm text-white">안녕하세요! 반갑습니다 ㅎㅎ</p>
+          </div>
+          <span class="mt-1 block text-right text-xs text-[#9A9A9A]">오후 2:32</span>
+        </div>
+      </div>
+
+      <!-- Received message -->
+      <div class="flex items-end gap-2">
+        <div class="h-8 w-8 shrink-0 rounded-full bg-gradient-to-br from-blue-200 to-green-200 overflow-hidden" style="filter: blur(2px);"></div>
+        <div class="max-w-[70%]">
+          <div class="rounded-2xl rounded-bl-md bg-white px-4 py-2.5 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
+            <p class="text-sm text-[#1A1A1A]">취미가 비슷하네요! 저도 카페 좋아해요</p>
+          </div>
+          <span class="mt-1 block text-xs text-[#9A9A9A]">오후 2:35</span>
+        </div>
+      </div>
+
+      <!-- Sent message -->
+      <div class="flex items-end justify-end gap-2">
+        <div class="max-w-[70%]">
+          <div class="rounded-2xl rounded-br-md bg-[#FF6B6B] px-4 py-2.5">
+            <p class="text-sm text-white">오 정말요? 요즘 괜찮은 카페 찾았는데!</p>
+          </div>
+          <span class="mt-1 block text-right text-xs text-[#9A9A9A]">오후 2:36</span>
+        </div>
+      </div>
+
+      <!-- Received message -->
+      <div class="flex items-end gap-2">
+        <div class="h-8 w-8 shrink-0 rounded-full bg-gradient-to-br from-blue-200 to-green-200 overflow-hidden" style="filter: blur(2px);"></div>
+        <div class="max-w-[70%]">
+          <div class="rounded-2xl rounded-bl-md bg-white px-4 py-2.5 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
+            <p class="text-sm text-[#1A1A1A]">어디에요? 궁금해요!</p>
+          </div>
+          <span class="mt-1 block text-xs text-[#9A9A9A]">오후 2:38</span>
+        </div>
+      </div>
+
+      <!-- Sent message -->
+      <div class="flex items-end justify-end gap-2">
+        <div class="max-w-[70%]">
+          <div class="rounded-2xl rounded-br-md bg-[#FF6B6B] px-4 py-2.5">
+            <p class="text-sm text-white">성수동에 새로 오픈한 카페인데 분위기가 너무 좋아요. 나중에 같이 가면 좋겠다!</p>
+          </div>
+          <span class="mt-1 block text-right text-xs text-[#9A9A9A]">오후 2:40</span>
+        </div>
+      </div>
+
+      <!-- Received message -->
+      <div class="flex items-end gap-2">
+        <div class="h-8 w-8 shrink-0 rounded-full bg-gradient-to-br from-blue-200 to-green-200 overflow-hidden" style="filter: blur(2px);"></div>
+        <div class="max-w-[70%]">
+          <div class="rounded-2xl rounded-bl-md bg-white px-4 py-2.5 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
+            <p class="text-sm text-[#1A1A1A]">좋아요! 성수동 카페 좋죠 😊 프로필 공개하고 만나볼까요?</p>
+          </div>
+          <span class="mt-1 block text-xs text-[#9A9A9A]">오후 2:42</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Chat Input -->
+    <div class="border-t border-[#E5E5E5] bg-white px-4 py-3">
+      <div class="flex items-end gap-2">
+        <div class="flex-1 rounded-2xl border border-[#E5E5E5] bg-[#F5F5F5] px-4 py-2.5">
+          <input type="text" placeholder="메시지를 입력하세요..." class="w-full bg-transparent text-sm outline-none placeholder-[#9A9A9A]">
+        </div>
+        <button class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#FF6B6B] text-white">
+          <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=390, initial-scale=1">
+  <title>친친 - 블라인드 프로필</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: { DEFAULT: '#FF6B6B', dark: '#E55555', light: '#FFE5E5', foreground: '#FFFFFF' },
+            secondary: { DEFAULT: '#4ECDC4', foreground: '#FFFFFF' },
+            foreground: '#1A1A1A',
+            muted: { DEFAULT: '#F5F5F5', foreground: '#9A9A9A' },
+            border: '#E5E5E5',
+          },
+          fontFamily: { sans: ['Noto Sans KR', 'system-ui', 'sans-serif'] },
+          boxShadow: { soft: '0 2px 8px rgba(0,0,0,0.08)', strong: '0 8px 32px rgba(0,0,0,0.16)' },
+        }
+      }
+    }
+  </script>
+  <style>
+    body { font-family: 'Noto Sans KR', system-ui, sans-serif; margin: 0; background: #f5f5f5; }
+    .device-frame { width: 390px; margin: 0 auto; background: #fff; min-height: 844px; position: relative; overflow: hidden; }
+  </style>
+</head>
+<body>
+  <div class="device-frame">
+    <main class="min-h-[844px] bg-gradient-to-b from-[#F5F5F5] to-white">
+      <!-- Header -->
+      <header class="sticky top-0 z-40 flex items-center justify-between bg-white/80 px-4 py-3" style="backdrop-filter: blur(8px);">
+        <div class="text-lg font-bold text-[#FF6B6B]">친친</div>
+        <button class="flex h-10 w-10 items-center justify-center rounded-xl text-[#9A9A9A]">
+          <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+        </button>
+      </header>
+
+      <div class="mx-auto max-w-lg px-4 pb-32">
+        <!-- Profile Image (blurred) -->
+        <div class="relative mb-6 aspect-square overflow-hidden rounded-3xl shadow-[0_8px_32px_rgba(0,0,0,0.16)]">
+          <div class="h-full w-full bg-gradient-to-br from-pink-300 via-purple-200 to-blue-300" style="filter: blur(40px); transform: scale(1.1);"></div>
+          <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+
+          <!-- Stats overlay -->
+          <div class="absolute bottom-4 left-4 right-4 flex items-center justify-between text-white">
+            <div class="flex items-center gap-2">
+              <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              <span class="text-sm">23명이 봤어요</span>
+            </div>
+            <span class="flex items-center gap-1 text-white text-sm font-medium">
+              <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              18:32:15
+            </span>
+          </div>
+        </div>
+
+        <!-- Profile Info -->
+        <div class="mb-6">
+          <!-- Basic info -->
+          <div class="mb-4 flex items-center gap-2">
+            <span class="text-2xl font-bold text-[#1A1A1A]">26세</span>
+            <span class="text-2xl text-[#9A9A9A]">&middot;</span>
+            <span class="text-2xl text-[#1A1A1A]">남성</span>
+            <span class="text-2xl text-[#9A9A9A]">&middot;</span>
+            <span class="text-lg text-[#9A9A9A]">IT/개발</span>
+          </div>
+
+          <!-- Bio -->
+          <p class="mb-6 text-xl leading-relaxed text-[#1A1A1A]">유쾌하고 따뜻한 성격의 개발자 친구</p>
+
+          <!-- Interest tags -->
+          <div class="mb-4 flex flex-wrap gap-2">
+            <span class="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-[#FFE5E5] text-[#FF6B6B]">#카페투어</span>
+            <span class="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-[#FFE5E5] text-[#FF6B6B]">#영화</span>
+            <span class="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-[#FFE5E5] text-[#FF6B6B]">#여행</span>
+          </div>
+
+          <!-- Optional info -->
+          <div class="flex flex-wrap gap-3 text-[#9A9A9A]">
+            <span class="rounded-lg bg-[#F5F5F5] px-3 py-1 text-sm">ENFP</span>
+            <span class="rounded-lg bg-[#F5F5F5] px-3 py-1 text-sm">🎵 인디음악</span>
+          </div>
+        </div>
+
+        <!-- Creator info hint -->
+        <div class="mb-6 rounded-xl bg-[#FFE5E5] p-4 text-center">
+          <p class="text-sm text-[#FF6B6B]">💕 친구가 직접 소개해준 프로필이에요</p>
+        </div>
+      </div>
+
+      <!-- Fixed bottom CTA -->
+      <div class="fixed bottom-0 left-0 right-0 bg-white/95 px-4 py-4 shadow-[0_-4px_16px_rgba(0,0,0,0.08)]" style="width: 390px; margin: 0 auto; backdrop-filter: blur(8px);">
+        <div class="mx-auto max-w-lg">
+          <button class="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#FF6B6B] text-white h-14 px-8 py-4 text-lg font-semibold shadow-[0_2px_8px_rgba(0,0,0,0.08)]">
+            <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            대화 신청하기
+          </button>
+          <p class="mt-2 text-center text-xs text-[#9A9A9A]">상대방이 수락하면 익명 채팅이 시작돼요</p>
+        </div>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

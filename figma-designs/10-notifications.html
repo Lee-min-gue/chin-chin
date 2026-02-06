@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=390, initial-scale=1">
+  <title>친친 - 알림</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: { DEFAULT: '#FF6B6B', dark: '#E55555', light: '#FFE5E5', foreground: '#FFFFFF' },
+            secondary: { DEFAULT: '#4ECDC4', foreground: '#FFFFFF' },
+            foreground: '#1A1A1A',
+            muted: { DEFAULT: '#F5F5F5', foreground: '#9A9A9A' },
+            border: '#E5E5E5',
+          },
+          fontFamily: { sans: ['Noto Sans KR', 'system-ui', 'sans-serif'] },
+        }
+      }
+    }
+  </script>
+  <style>
+    body { font-family: 'Noto Sans KR', system-ui, sans-serif; margin: 0; background: #fff; }
+    .device-frame { width: 390px; margin: 0 auto; background: #fff; min-height: 844px; position: relative; overflow: hidden; display: flex; flex-direction: column; }
+  </style>
+</head>
+<body>
+  <div class="device-frame">
+    <!-- Header -->
+    <header class="sticky top-0 z-40 flex items-center justify-between border-b border-[#E5E5E5] bg-white px-4 py-3">
+      <div class="flex items-center gap-3">
+        <button class="p-1">
+          <svg class="h-5 w-5 text-[#1A1A1A]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+        </button>
+        <h1 class="text-lg font-bold text-[#1A1A1A]">알림</h1>
+      </div>
+      <button class="flex items-center gap-1 rounded-xl px-3 py-1.5 text-sm font-medium text-[#1A1A1A] hover:bg-[#F5F5F5]">
+        <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/><polyline points="20 6 9 17 4 12" transform="translate(0, -4)"/></svg>
+        모두 읽음
+      </button>
+    </header>
+
+    <!-- Notification list -->
+    <div class="flex-1 overflow-y-auto divide-y divide-[#E5E5E5]">
+      <!-- Notification 1 (unread - chat request) -->
+      <button class="flex w-full items-start gap-3 px-4 py-3.5 text-left bg-[#FF6B6B]/5">
+        <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-[#FF6B6B] bg-[#FF6B6B]/10">
+          <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-2">
+            <p class="text-sm font-semibold text-[#1A1A1A]">새로운 대화 신청</p>
+            <span class="h-2 w-2 shrink-0 rounded-full bg-[#FF6B6B]"></span>
+          </div>
+          <p class="mt-0.5 text-sm text-[#9A9A9A]">누군가 당신의 프로필에 관심을 보였어요!</p>
+          <p class="mt-1 text-xs text-[#9A9A9A]">5분 전</p>
+        </div>
+      </button>
+
+      <!-- Notification 2 (unread - chat accepted) -->
+      <button class="flex w-full items-start gap-3 px-4 py-3.5 text-left bg-[#FF6B6B]/5">
+        <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-green-600 bg-green-50">
+          <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><polyline points="16 11 18 13 22 9"/></svg>
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-2">
+            <p class="text-sm font-semibold text-[#1A1A1A]">대화 신청 수락됨</p>
+            <span class="h-2 w-2 shrink-0 rounded-full bg-[#FF6B6B]"></span>
+          </div>
+          <p class="mt-0.5 text-sm text-[#9A9A9A]">상대방이 대화를 수락했어요! 지금 대화를 시작하세요</p>
+          <p class="mt-1 text-xs text-[#9A9A9A]">30분 전</p>
+        </div>
+      </button>
+
+      <!-- Notification 3 (read - reveal requested) -->
+      <button class="flex w-full items-start gap-3 px-4 py-3.5 text-left">
+        <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-[#FF6B6B] bg-[#FF6B6B]/10">
+          <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        </div>
+        <div class="flex-1 min-w-0">
+          <p class="text-sm font-medium text-[#1A1A1A]">프로필 공개 요청</p>
+          <p class="mt-0.5 text-sm text-[#9A9A9A]">상대방이 프로필 공개를 요청했어요</p>
+          <p class="mt-1 text-xs text-[#9A9A9A]">2시간 전</p>
+        </div>
+      </button>
+
+      <!-- Notification 4 (read - new message) -->
+      <button class="flex w-full items-start gap-3 px-4 py-3.5 text-left">
+        <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-[#1A1A1A] bg-[#F5F5F5]">
+          <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        </div>
+        <div class="flex-1 min-w-0">
+          <p class="text-sm font-medium text-[#1A1A1A]">새 메시지</p>
+          <p class="mt-0.5 text-sm text-[#9A9A9A]">대화방에 새로운 메시지가 도착했어요</p>
+          <p class="mt-1 text-xs text-[#9A9A9A]">3시간 전</p>
+        </div>
+      </button>
+
+      <!-- Notification 5 (read - chat rejected) -->
+      <button class="flex w-full items-start gap-3 px-4 py-3.5 text-left">
+        <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-[#9A9A9A] bg-[#F5F5F5]">
+          <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="17" y1="8" x2="23" y2="14"/><line x1="23" y1="8" x2="17" y2="14"/></svg>
+        </div>
+        <div class="flex-1 min-w-0">
+          <p class="text-sm font-medium text-[#1A1A1A]">대화 신청 거절됨</p>
+          <p class="mt-0.5 text-sm text-[#9A9A9A]">아쉽지만 상대방이 대화를 거절했어요</p>
+          <p class="mt-1 text-xs text-[#9A9A9A]">어제</p>
+        </div>
+      </button>
+
+      <!-- Notification 6 (read - reveal accepted) -->
+      <button class="flex w-full items-start gap-3 px-4 py-3.5 text-left">
+        <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-green-600 bg-green-50">
+          <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        </div>
+        <div class="flex-1 min-w-0">
+          <p class="text-sm font-medium text-[#1A1A1A]">프로필 공개 완료</p>
+          <p class="mt-0.5 text-sm text-[#9A9A9A]">서로의 프로필이 공개되었어요! 확인해보세요</p>
+          <p class="mt-1 text-xs text-[#9A9A9A]">2일 전</p>
+        </div>
+      </button>
+    </div>
+  </div>
+</body>
+</html>

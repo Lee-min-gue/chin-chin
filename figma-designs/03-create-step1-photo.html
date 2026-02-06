@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=390, initial-scale=1">
+  <title>친친 - 프로필 만들기 Step 1</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: { DEFAULT: '#FF6B6B', dark: '#E55555', light: '#FFE5E5', foreground: '#FFFFFF' },
+            secondary: { DEFAULT: '#4ECDC4', foreground: '#FFFFFF' },
+            foreground: '#1A1A1A',
+            muted: { DEFAULT: '#F5F5F5', foreground: '#9A9A9A' },
+            border: '#E5E5E5',
+            input: '#E5E5E5',
+            destructive: { DEFAULT: '#EF4444', foreground: '#FFFFFF' },
+          },
+          fontFamily: { sans: ['Noto Sans KR', 'system-ui', 'sans-serif'] },
+          boxShadow: { soft: '0 2px 8px rgba(0, 0, 0, 0.08)' },
+        }
+      }
+    }
+  </script>
+  <style>
+    body { font-family: 'Noto Sans KR', system-ui, sans-serif; margin: 0; background: #f5f5f5; }
+    .device-frame { width: 390px; margin: 0 auto; background: #F5F5F5; min-height: 844px; position: relative; overflow: hidden; }
+  </style>
+</head>
+<body>
+  <div class="device-frame">
+    <!-- Header -->
+    <header class="sticky top-0 z-40 w-full bg-white/80 border-b border-[#E5E5E5]/50" style="backdrop-filter: blur(8px);">
+      <div class="mx-auto flex h-14 max-w-lg items-center justify-between px-4">
+        <div class="text-lg font-bold text-[#FF6B6B]">친친</div>
+        <div class="flex items-center gap-2">
+          <div class="h-8 w-8 rounded-full bg-[#FF6B6B]/20"></div>
+          <div class="relative flex h-9 w-9 items-center justify-center rounded-full">
+            <svg class="h-5 w-5 text-[#9A9A9A]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Progress bar -->
+    <div class="sticky top-14 z-30 bg-white px-4 py-3 shadow-[0_2px_8px_rgba(0,0,0,0.08)]">
+      <div class="mx-auto max-w-lg">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center">
+            <div class="flex h-8 w-8 items-center justify-center rounded-full bg-[#FF6B6B] text-sm font-bold text-white">1</div>
+            <div class="mx-2 h-0.5 w-16 bg-[#F5F5F5]"></div>
+          </div>
+          <div class="flex items-center">
+            <div class="flex h-8 w-8 items-center justify-center rounded-full bg-[#F5F5F5] text-sm font-bold text-[#9A9A9A]">2</div>
+            <div class="mx-2 h-0.5 w-16 bg-[#F5F5F5]"></div>
+          </div>
+          <div class="flex items-center">
+            <div class="flex h-8 w-8 items-center justify-center rounded-full bg-[#F5F5F5] text-sm font-bold text-[#9A9A9A]">3</div>
+          </div>
+        </div>
+        <div class="mt-2">
+          <h2 class="font-bold text-[#1A1A1A]">사진</h2>
+          <p class="text-sm text-[#9A9A9A]">친구의 사진을 올려주세요</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Form: Photo Upload -->
+    <div class="mx-auto max-w-lg px-4 pt-6 pb-8">
+      <div class="space-y-6">
+        <!-- Upload area (empty state) -->
+        <div class="rounded-2xl bg-white p-4 shadow-[0_2px_8px_rgba(0,0,0,0.08)]">
+          <div class="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-[#9A9A9A]/30 p-8 text-center cursor-pointer hover:border-[#FF6B6B] hover:bg-[#FFE5E5]/50">
+            <svg class="mb-4 h-12 w-12 text-[#9A9A9A]" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+            <p class="font-medium text-[#1A1A1A]">사진을 업로드해주세요</p>
+            <p class="mt-1 text-sm text-[#9A9A9A]">JPG, PNG, WebP &middot; 최대 10MB</p>
+          </div>
+        </div>
+
+        <!-- Info box -->
+        <div class="rounded-xl bg-[#FFE5E5] p-4">
+          <p class="text-sm text-[#FF6B6B]">
+            <strong>블라인드 처리</strong>가 적용되어 프로필 공개 전까지 얼굴이 보이지 않아요. 프로필 공개에 동의하면 원본 사진이 공개됩니다.
+          </p>
+        </div>
+
+        <!-- Next button (disabled state) -->
+        <button class="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#FF6B6B] text-white h-12 px-6 py-3 text-base font-semibold opacity-50" disabled>
+          다음
+          <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
