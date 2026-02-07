@@ -4,21 +4,21 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl text-base font-semibold transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 active:scale-[0.98]",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-2xl text-base font-semibold transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 active:scale-[0.98]",
   {
     variants: {
       variant: {
         default:
-          "bg-primary text-primary-foreground shadow-soft hover:bg-primary-dark",
+          "bg-primary text-primary-foreground shadow-lg shadow-primary/25 hover:bg-primary-dark hover:shadow-xl hover:shadow-primary/30",
         destructive:
-          "bg-destructive text-destructive-foreground hover:bg-destructive/90",
+          "bg-destructive text-destructive-foreground shadow-lg shadow-destructive/25 hover:bg-destructive/90",
         outline:
           "border-2 border-primary bg-transparent text-primary hover:bg-primary-light",
         secondary:
-          "bg-secondary text-secondary-foreground hover:bg-secondary/90",
+          "bg-secondary text-secondary-foreground shadow-lg shadow-secondary/25 hover:bg-secondary/90",
         ghost: "text-foreground hover:bg-muted",
         link: "text-primary underline-offset-4 hover:underline",
-        kakao: "bg-[#FEE500] text-[#191919] hover:bg-[#FDD835]",
+        kakao: "bg-[#FEE500] text-[#191919] shadow-lg shadow-[#FEE500]/30 hover:bg-[#FDD835] hover:shadow-xl",
       },
       size: {
         default: "h-12 px-6 py-3",
@@ -40,7 +40,7 @@ const buttonVariants = cva(
 
 export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
-    VariantProps<typeof buttonVariants> {
+  VariantProps<typeof buttonVariants> {
   asChild?: boolean;
   loading?: boolean;
 }
@@ -61,13 +61,19 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     ref
   ) => {
     const Comp = asChild ? Slot : "button";
+
+    // asChild일 때는 disabled를 전달하지 않음 (Link에 영향을 주기 때문)
+    const buttonProps = asChild
+      ? { className: cn(buttonVariants({ variant, size, fullWidth, className })), ...props }
+      : {
+        className: cn(buttonVariants({ variant, size, fullWidth, className })),
+        ref,
+        disabled: disabled || loading,
+        ...props
+      };
+
     return (
-      <Comp
-        className={cn(buttonVariants({ variant, size, fullWidth, className }))}
-        ref={ref}
-        disabled={disabled || loading}
-        {...props}
-      >
+      <Comp {...buttonProps} ref={asChild ? undefined : ref}>
         {loading ? (
           <>
             <svg

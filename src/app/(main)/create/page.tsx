@@ -14,9 +14,9 @@ import { useToast } from "@/components/ui/toaster";
 import type { ProfileFormData } from "@/lib/validations/profile";
 
 const steps = [
-  { id: 1, title: "사진", description: "친구의 사진을 올려주세요" },
-  { id: 2, title: "기본 정보", description: "친구에 대해 알려주세요" },
-  { id: 3, title: "취향", description: "친구의 취향을 선택해주세요" },
+  { id: 1, title: "사진", description: "친구의 사진을 올려주세요", motivation: "💡 좋은 사진이 조회수를 3배 높여요!" },
+  { id: 2, title: "기본 정보", description: "친구에 대해 알려주세요", motivation: "✨ 솔직한 소개가 매칭 확률을 높여요" },
+  { id: 3, title: "취향", description: "친구의 취향을 선택해주세요", motivation: "🎉 거의 다 왔어요!" },
 ];
 
 export default function CreateProfilePage() {
@@ -87,13 +87,12 @@ export default function CreateProfilePage() {
               {steps.map((step, index) => (
                 <div key={step.id} className="flex items-center">
                   <div
-                    className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold transition-colors ${
-                      currentStep > step.id
+                    className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold transition-colors ${currentStep > step.id
                         ? "bg-primary text-white"
                         : currentStep === step.id
                           ? "bg-primary text-white"
                           : "bg-muted text-muted-foreground"
-                    }`}
+                      }`}
                   >
                     {currentStep > step.id ? (
                       <Check className="h-4 w-4" />
@@ -103,20 +102,28 @@ export default function CreateProfilePage() {
                   </div>
                   {index < steps.length - 1 && (
                     <div
-                      className={`mx-2 h-0.5 w-12 sm:w-20 transition-colors ${
-                        currentStep > step.id ? "bg-primary" : "bg-muted"
-                      }`}
+                      className={`mx-2 h-0.5 w-12 sm:w-20 transition-colors ${currentStep > step.id ? "bg-primary" : "bg-muted"
+                        }`}
                     />
                   )}
                 </div>
               ))}
             </div>
-            <div className="mt-2">
-              <h2 className="font-bold">{steps[currentStep - 1].title}</h2>
-              <p className="text-sm text-muted-foreground">
-                {steps[currentStep - 1].description}
-              </p>
+            <div className="mt-3 flex items-start justify-between">
+              <div>
+                <h2 className="font-bold">{steps[currentStep - 1].title}</h2>
+                <p className="text-sm text-muted-foreground">
+                  {steps[currentStep - 1].description}
+                </p>
+              </div>
+              <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                <span>⏱️</span>
+                <span>약 2분</span>
+              </div>
             </div>
+            <p className="mt-2 text-sm font-medium text-primary">
+              {steps[currentStep - 1].motivation}
+            </p>
           </div>
         </div>
 

@@ -218,6 +218,17 @@ export default function DashboardPage() {
           </div>
         </div>
 
+        {/* Success Rate Highlight */}
+        {Number(conversionRate) > 5 && (
+          <div className="px-4 pb-4">
+            <div className="mx-auto max-w-lg rounded-2xl bg-gradient-to-r from-primary/10 to-secondary/10 p-4">
+              <p className="text-center font-medium">
+                🎉 평균보다 {(Number(conversionRate) - 5).toFixed(0)}% 높은 매칭률!
+              </p>
+            </div>
+          </div>
+        )}
+
         {/* Filter tabs */}
         <div className="px-4 pb-4">
           <div className="mx-auto flex max-w-lg gap-2 overflow-x-auto no-scrollbar">
@@ -230,11 +241,10 @@ export default function DashboardPage() {
               <button
                 key={tab.key}
                 onClick={() => setFilter(tab.key as FilterType)}
-                className={`shrink-0 rounded-full px-4 py-2 text-sm font-medium transition-colors ${
-                  filter === tab.key
+                className={`shrink-0 rounded-full px-4 py-2 text-sm font-medium transition-colors ${filter === tab.key
                     ? "bg-primary text-white"
                     : "bg-white text-muted-foreground hover:bg-muted"
-                }`}
+                  }`}
               >
                 {tab.label}
               </button>
@@ -260,14 +270,21 @@ export default function DashboardPage() {
                 ))}
               </div>
             ) : filteredProfiles.length === 0 ? (
-              <div className="py-12 text-center">
-                <div className="mb-4 text-4xl">📭</div>
-                <p className="mb-4 text-muted-foreground">
+              <div className="py-16 text-center">
+                <div className="mb-6 text-6xl">
+                  {filter === "all" ? "💌" : "🔍"}
+                </div>
+                <h3 className="mb-2 text-lg font-bold">
                   {filter === "all"
-                    ? "아직 만든 소개가 없어요"
+                    ? "첫 친구를 소개해볼까요?"
                     : "조건에 맞는 소개가 없어요"}
+                </h3>
+                <p className="mb-6 text-muted-foreground">
+                  {filter === "all"
+                    ? "5분이면 프로필 링크를 만들 수 있어요"
+                    : "다른 필터를 선택해보세요"}
                 </p>
-                <Button asChild>
+                <Button size="lg" asChild>
                   <Link href="/create">
                     <Plus className="mr-2 h-5 w-5" />
                     친구 소개하기

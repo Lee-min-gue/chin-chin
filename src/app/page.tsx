@@ -56,28 +56,51 @@ export default function HomePage() {
         {/* Hero Section */}
         <section className="relative overflow-hidden bg-gradient-to-b from-primary-light to-white px-4 pb-16 pt-20">
           <div className="mx-auto max-w-lg text-center">
-            <Logo size="lg" asLink={false} className="mb-4" />
+            {/* Social Proof Badges */}
+            <div className="mb-6 flex flex-wrap justify-center gap-3">
+              <div className="flex items-center gap-1.5 rounded-full bg-white/80 px-3 py-1.5 text-sm shadow-sm backdrop-blur-sm">
+                <span className="text-lg">🔥</span>
+                <span>오늘 <span className="font-bold text-primary">127</span>명 매칭</span>
+              </div>
+              <div className="flex items-center gap-1.5 rounded-full bg-white/80 px-3 py-1.5 text-sm shadow-sm backdrop-blur-sm">
+                <span className="text-lg">💬</span>
+                <span><span className="font-bold text-primary">1,234</span>개 대화 진행중</span>
+              </div>
+            </div>
 
-            <h1 className="mb-4 text-3xl font-bold leading-tight text-foreground">
+            <Logo size="xl" asLink={false} className="mb-6" />
+
+            <h1 className="mb-3 text-3xl font-bold leading-tight text-foreground">
               친구를 소개하는
               <br />
               가장 쉬운 방법
             </h1>
 
-            <p className="mb-8 text-lg text-muted-foreground">
-              인스타 스토리 하나로 시작하는
-              <br />
-              블라인드 소개팅
+            <p className="mb-2 text-lg font-medium text-primary">
+              친구가 소개해주니까 믿을 수 있어요
             </p>
 
-            <Button size="lg" fullWidth variant="kakao" asChild>
-              <Link href="/login">
-                <svg viewBox="0 0 24 24" className="h-6 w-6" fill="currentColor">
-                  <path d="M12 3c-5.148 0-9.324 3.39-9.324 7.571 0 2.722 1.804 5.107 4.516 6.449-.199.742-.722 2.687-.826 3.104-.13.525.192.518.404.377.166-.11 2.644-1.8 3.713-2.53.498.073 1.008.112 1.527.112 5.148 0 9.324-3.39 9.324-7.571S17.148 3 12 3z" />
-                </svg>
-                카카오톡으로 시작하기
-              </Link>
-            </Button>
+            <p className="mb-8 text-muted-foreground">
+              인스타 스토리 하나로 시작하는 블라인드 소개팅
+            </p>
+
+            {/* Dual CTA Buttons */}
+            <div className="space-y-3">
+              <Button size="lg" fullWidth variant="kakao" asChild>
+                <Link href="/login">
+                  <svg viewBox="0 0 24 24" className="h-6 w-6" fill="currentColor">
+                    <path d="M12 3c-5.148 0-9.324 3.39-9.324 7.571 0 2.722 1.804 5.107 4.516 6.449-.199.742-.722 2.687-.826 3.104-.13.525.192.518.404.377.166-.11 2.644-1.8 3.713-2.53.498.073 1.008.112 1.527.112 5.148 0 9.324-3.39 9.324-7.571S17.148 3 12 3z" />
+                  </svg>
+                  카카오톡으로 시작하기
+                </Link>
+              </Button>
+              <Button size="lg" fullWidth variant="outline" asChild>
+                <Link href="/dashboard">
+                  먼저 둘러보기
+                  <ArrowRight className="h-5 w-5" />
+                </Link>
+              </Button>
+            </div>
           </div>
 
           {/* Decorative elements */}

@@ -18,18 +18,61 @@ import { formatRelativeTime } from "@/lib/utils";
 import type { ChatRoom, Profile, Message } from "@/types/database";
 
 interface ChatRoomWithDetails extends ChatRoom {
-  profile: Profile;
+  profile: Profile | null;
   lastMessage?: Message;
   otherUserNickname?: string;
 }
 
 type TabType = "active" | "pending" | "received";
 
+import React from "react";
+
+class ChatErrorBoundary extends React.Component<
+  { children: React.ReactNode },
+  { hasError: boolean; error: Error | null }
+> {
+  constructor(props: { children: React.ReactNode }) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true, error };
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <>
+          <Header />
+          <main className="flex min-h-screen flex-col items-center justify-center p-4">
+            <div className="text-4xl mb-4">😵</div>
+            <h2 className="text-lg font-bold mb-2">오류가 발생했어요</h2>
+            <p className="text-muted-foreground text-center mb-4">
+              {this.state.error?.message || "알 수 없는 오류"}
+            </p>
+            <button
+              onClick={() => this.setState({ hasError: false, error: null })}
+              className="px-4 py-2 bg-primary text-white rounded-xl"
+            >
+              다시 시도
+            </button>
+          </main>
+          <BottomNav />
+        </>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 export default function ChatListPage() {
   return (
-    <Suspense fallback={<ChatLoadingState />}>
-      <ChatListContent />
-    </Suspense>
+    <ChatErrorBoundary>
+      <Suspense fallback={<ChatLoadingState />}>
+        <ChatListContent />
+      </Suspense>
+    </ChatErrorBoundary>
   );
 }
 
@@ -180,6 +223,9 @@ function ChatListContent() {
 
   const filterRooms = (rooms: ChatRoomWithDetails[], tab: TabType) => {
     return rooms.filter((room) => {
+      // profile이 없는 방은 제외
+      if (!room.profile) return false;
+
       const isRequester = room.requester_id === user?.id;
 
       switch (tab) {
@@ -220,12 +266,16 @@ function ChatListContent() {
             ].map((tab) => (
               <button
                 key={tab.key}
-                onClick={() => setActiveTab(tab.key)}
-                className={`relative flex flex-1 items-center justify-center gap-2 border-b-2 px-4 py-3 text-sm font-medium transition-colors ${
-                  activeTab === tab.key
-                    ? "border-primary text-primary"
-                    : "border-transparent text-muted-foreground hover:text-foreground"
-                }`}
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setActiveTab(tab.key);
+                }}
+                className={`relative flex flex-1 items-center justify-center gap-2 border-b-2 px-4 py-3 text-sm font-medium transition-colors ${activeTab === tab.key
+                  ? "border-primary text-primary"
+                  : "border-transparent text-muted-foreground hover:text-foreground"
+                  }`}
               >
                 <tab.icon className="h-4 w-4" />
                 {tab.label}
@@ -310,6 +360,11 @@ function ChatRoomCard({
 }) {
   const isRequester = room.requester_id === currentUserId;
   const profile = room.profile;
+
+  // profile이 없으면 렌더링하지 않음
+  if (!profile) {
+    return null;
+  }
 
   const getStatusBadge = () => {
     switch (room.status) {

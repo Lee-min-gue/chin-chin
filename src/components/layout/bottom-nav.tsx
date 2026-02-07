@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useRef, useEffect } from "react";
 import { Home, PlusCircle, MessageCircle, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
@@ -15,7 +16,20 @@ interface NavItem {
 
 export function BottomNav() {
   const pathname = usePathname();
-  const { user } = useAuth();
+  const { user, isLoading } = useAuth();
+
+  // user 상태를 캐시해서 빠른 리렌더링 시에도 안정적으로 유지
+  const cachedUserRef = useRef<typeof user>(null);
+
+  useEffect(() => {
+    // 로딩이 완료되었을 때만 캐시 업데이트
+    if (!isLoading) {
+      cachedUserRef.current = user;
+    }
+  }, [user, isLoading]);
+
+  // 로딩 중이면 캐시된 user 사용, 아니면 현재 user 사용
+  const stableUser = isLoading ? cachedUserRef.current : user;
 
   // Hide on login page and individual chat pages
   if (pathname === "/login" || pathname.startsWith("/chat/")) {
@@ -47,9 +61,11 @@ export function BottomNav() {
             pathname === item.href ||
             (item.href !== "/" && pathname.startsWith(item.href));
 
-          // If requires auth and not logged in, redirect to login
-          const href =
-            item.requiresAuth && !user
+          // 현재 활성화된 페이지면 항상 원래 href 유지 (리다이렉트 방지)
+          // 비활성화된 페이지일 때만 auth 체크
+          const href = isActive
+            ? item.href  // 현재 페이지는 항상 원래 경로
+            : (item.requiresAuth && !stableUser)
               ? `/login?redirect=${item.href}`
               : item.href;
 
@@ -57,6 +73,12 @@ export function BottomNav() {
             <Link
               key={item.href}
               href={href}
+              onClick={(e) => {
+                // 현재 활성화된 페이지면 네비게이션 방지
+                if (isActive) {
+                  e.preventDefault();
+                }
+              }}
               className={cn(
                 "relative flex flex-col items-center gap-1 px-3 py-2 transition-colors",
                 isActive ? "text-primary" : "text-muted-foreground"
