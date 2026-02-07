@@ -84,8 +84,15 @@ const config: Config = {
         "slide-down": "slideDown 0.3s ease-out",
         "scale-in": "scaleIn 0.2s ease-out",
         "pulse-soft": "pulseSoft 2s infinite",
+        "gradient-shift": "gradientShift 8s ease infinite",
       },
       keyframes: {
+        gradientShift: {
+          "0%, 100%": { backgroundPosition: "0% 50%" },
+          "25%": { backgroundPosition: "50% 100%" },
+          "50%": { backgroundPosition: "100% 50%" },
+          "75%": { backgroundPosition: "50% 0%" },
+        },
         fadeIn: {
           "0%": { opacity: "0" },
           "100%": { opacity: "1" },
