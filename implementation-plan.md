@@ -744,6 +744,21 @@ test('주선자가 프로필을 생성하고 공유한다', async ({ page }) => 
 - [x] 접근성 (prefers-reduced-motion, WCAG AA 대비, 44px 터치타겟)
 - [x] Vercel 프로덕션 배포 완료
 
+### Phase 8 (홈페이지 대규모 개선) ✅
+- [x] 히어로: framer-motion 순차 등장 애니메이션 (뱃지, 로고, 텍스트, CTA staggered)
+- [x] 히어로: 플로팅 하트 배경 + 핑크 그라데이션 + 하단 페이드 트랜지션
+- [x] 히어로: 로그인 상태별 CTA 분기 (카카오 로그인 / 친구 소개하기)
+- [x] "먼저 둘러보기" 버튼 제거
+- [x] 신규 섹션: 블라인드 프로필 미리보기 (가로 무한 순환 마키 캐러셀)
+- [x] 신규 섹션: 매칭 성공 후기 4건 (fade-up staggered)
+- [x] 신규 섹션: 숫자로 보는 친친 (카운트업 애니메이션 + useInView)
+- [x] 신규 섹션: 기존 소개팅앱 vs 친친 비교표 (Check/X 아이콘)
+- [x] 신규 섹션: FAQ 아코디언 5문항 (ChevronDown 회전)
+- [x] 하단 CTA: 카드형 리디자인 (코랄 그라데이션 + 장식 원형 + 흰색 버튼)
+- [x] 전체 섹션 스크롤 트리거 애니메이션 (whileInView, viewport once)
+- [x] 피처 카드 hover scale 효과, 스텝 slide-in-left 애니메이션
+- [x] Vercel 프로덕션 배포 완료
+
 ---
 
 **Document End**

@@ -18,7 +18,7 @@ interface HeaderProps {
 
 export function Header({ className, transparent }: HeaderProps) {
   const pathname = usePathname();
-  const { user, isLoading } = useAuth();
+  const { user } = useAuth();
   const [unreadCount, setUnreadCount] = useState(0);
   const supabaseRef = useRef(createClient());
 
@@ -91,9 +91,7 @@ export function Header({ className, transparent }: HeaderProps) {
         <Logo size="sm" />
 
         <div className="flex items-center gap-2">
-          {isLoading ? (
-            <div className="h-8 w-8 animate-pulse rounded-full bg-muted" />
-          ) : user ? (
+          {user ? (
             <>
               <Link href="/dashboard">
                 <Avatar

@@ -291,26 +291,32 @@ export default function HomePage() {
       <main className="min-h-screen">
         {/* Hero Section */}
         <section className="relative min-h-[85vh] overflow-hidden bg-gradient-to-b from-[#FFCECE] via-primary-light to-white px-5 pb-24 pt-28">
-          {/* Floating hearts */}
+          {/* Floating hearts — pure CSS for Safari scroll compat */}
           {[
-            { size: 20, left: "8%", delay: 0, duration: 7, opacity: 0.24 },
-            { size: 14, left: "20%", delay: 2, duration: 9, opacity: 0.24 },
-            { size: 18, left: "35%", delay: 4, duration: 8, opacity: 0.24 },
-            { size: 12, left: "50%", delay: 1, duration: 10, opacity: 0.24 },
-            { size: 22, left: "65%", delay: 3, duration: 7.5, opacity: 0.24 },
-            { size: 16, left: "78%", delay: 5, duration: 8.5, opacity: 0.24 },
-            { size: 13, left: "90%", delay: 0.5, duration: 9.5, opacity: 0.24 },
-            { size: 17, left: "45%", delay: 6, duration: 8, opacity: 0.24 },
+            { size: 20, left: "8%", delay: 0, duration: 7, drift: 20, rotate: 15 },
+            { size: 14, left: "20%", delay: 2, duration: 9, drift: -20, rotate: -15 },
+            { size: 18, left: "35%", delay: 4, duration: 8, drift: 20, rotate: 15 },
+            { size: 12, left: "50%", delay: 1, duration: 10, drift: -20, rotate: -15 },
+            { size: 22, left: "65%", delay: 3, duration: 7.5, drift: 20, rotate: 15 },
+            { size: 16, left: "78%", delay: 5, duration: 8.5, drift: -20, rotate: -15 },
+            { size: 13, left: "90%", delay: 0.5, duration: 9.5, drift: 20, rotate: 15 },
+            { size: 17, left: "45%", delay: 6, duration: 8, drift: -20, rotate: -15 },
           ].map((h, i) => (
-            <motion.div
+            <div
               key={i}
-              className="absolute text-primary"
-              style={{ left: h.left, bottom: -30, opacity: h.opacity, fontSize: h.size }}
-              animate={{ y: [0, -800], x: [0, (i % 2 === 0 ? 1 : -1) * 20, 0], rotate: [0, (i % 2 === 0 ? 15 : -15)] }}
-              transition={{ duration: h.duration, delay: h.delay, repeat: Infinity, ease: "linear" }}
+              className="absolute animate-float-heart text-primary will-change-transform"
+              style={{
+                left: h.left,
+                bottom: -30,
+                fontSize: h.size,
+                "--duration": `${h.duration}s`,
+                "--delay": `${h.delay}s`,
+                "--drift": `${h.drift}px`,
+                "--rotate": `${h.rotate}deg`,
+              } as React.CSSProperties}
             >
               ♥
-            </motion.div>
+            </div>
           ))}
 
           <div className="relative z-10 mx-auto max-w-lg text-center">
@@ -394,9 +400,8 @@ export default function HomePage() {
               animate="visible"
               transition={{ duration: 0.5, delay: 0.85 }}
             >
-              {isLoading ? (
-                <div className="mx-auto h-12 w-full max-w-xs animate-pulse rounded-2xl bg-gray-200" />
-              ) : isAuthenticated ? (
+              {/* Show default state immediately, swap when auth resolves */}
+              {isAuthenticated ? (
                 <Button size="lg" fullWidth asChild>
                   <Link href="/create">
                     친구 소개하기

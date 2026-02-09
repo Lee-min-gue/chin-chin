@@ -85,8 +85,15 @@ const config: Config = {
         "scale-in": "scaleIn 0.2s ease-out",
         "pulse-soft": "pulseSoft 2s infinite",
         "gradient-shift": "gradientShift 8s ease infinite",
+        "float-heart": "floatHeart var(--duration, 8s) var(--delay, 0s) linear infinite",
       },
       keyframes: {
+        floatHeart: {
+          "0%": { transform: "translateY(0) translateX(0) rotate(0deg)", opacity: "0.24" },
+          "10%": { opacity: "0.24" },
+          "90%": { opacity: "0.24" },
+          "100%": { transform: "translateY(-800px) translateX(var(--drift, 20px)) rotate(var(--rotate, 15deg))", opacity: "0" },
+        },
         gradientShift: {
           "0%, 100%": { backgroundPosition: "0% 50%" },
           "25%": { backgroundPosition: "50% 100%" },
