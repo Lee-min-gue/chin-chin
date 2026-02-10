@@ -399,8 +399,8 @@ export default function HomePage() {
               initial="hidden"
               animate="visible"
               transition={{ duration: 0.5, delay: 0.85 }}
-              className={`transition-opacity duration-300 ${isLoading ? "opacity-0" : "opacity-100"}`}
             >
+              <div className={`transition-opacity duration-300 ${isLoading ? "opacity-0" : "opacity-100"}`}>
               {isAuthenticated ? (
                 <Button size="lg" fullWidth asChild>
                   <Link href="/create">
@@ -422,6 +422,7 @@ export default function HomePage() {
                   </Link>
                 </Button>
               )}
+              </div>
             </motion.div>
           </div>
 
