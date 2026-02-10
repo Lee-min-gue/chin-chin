@@ -759,6 +759,14 @@ test('주선자가 프로필을 생성하고 공유한다', async ({ page }) => 
 - [x] 피처 카드 hover scale 효과, 스텝 slide-in-left 애니메이션
 - [x] Vercel 프로덕션 배포 완료
 
+### Phase 9 (모바일 버그 수정) ✅
+- [x] 모바일 Safari 하트 애니메이션 멈춤 수정: Framer Motion(JS) → CSS @keyframes + will-change-transform
+- [x] CTA/헤더 로딩 지연 수정: skeleton 제거, 기본 상태 즉시 렌더링
+- [x] 채팅 탭 홈 이동 버그 수정: `<Link href="#">` → null, 링크 없는 카드는 Link 없이 렌더링
+- [x] auth 버튼 깜빡임(FOUC) 수정: isLoading 동안 opacity-0, auth 완료 시 fade-in
+- [x] Framer Motion opacity 충돌 해결: motion.div 내부에 별도 div wrapper 추가
+- [x] Vercel 프로덕션 배포 완료
+
 ---
 
 **Document End**
