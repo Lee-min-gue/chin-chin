@@ -410,7 +410,54 @@ function ChatRoomCard({
       ? `/chat/${room.id}`
       : room.status === "pending" && !isRequester
         ? `/chat/request/${room.id}`
-        : "#";
+        : null;
+
+  const cardContent = (
+    <Card className={`transition-shadow ${href ? "hover:shadow-medium" : ""}`}>
+      <CardContent className="flex items-center gap-3 p-4">
+        {/* Avatar */}
+        <div className="relative">
+          <Avatar
+            src={profile.photo_url}
+            alt=""
+            size="lg"
+            blurred={!room.profile_revealed}
+          />
+          {room.profile_revealed && (
+            <div className="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-secondary text-white">
+              <Check className="h-3 w-3" />
+            </div>
+          )}
+        </div>
+
+        {/* Info */}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2">
+            <span className="font-medium">
+              {profile.age}세 · {profile.gender === "male" ? "남" : "여"}
+            </span>
+            {getStatusBadge()}
+          </div>
+          <p className="truncate text-sm text-muted-foreground">
+            {room.lastMessage
+              ? room.lastMessage.content
+              : room.status === "pending"
+                ? isRequester
+                  ? "대화 신청을 보냈어요"
+                  : "대화 신청이 도착했어요"
+                : profile.bio}
+          </p>
+        </div>
+
+        {/* Time */}
+        <div className="shrink-0 text-xs text-muted-foreground">
+          {room.lastMessage
+            ? formatRelativeTime(room.lastMessage.created_at)
+            : formatRelativeTime(room.created_at)}
+        </div>
+      </CardContent>
+    </Card>
+  );
 
   return (
     <motion.div
@@ -418,52 +465,11 @@ function ChatRoomCard({
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.05 }}
     >
-      <Link href={href}>
-        <Card className="transition-shadow hover:shadow-medium">
-          <CardContent className="flex items-center gap-3 p-4">
-            {/* Avatar */}
-            <div className="relative">
-              <Avatar
-                src={profile.photo_url}
-                alt=""
-                size="lg"
-                blurred={!room.profile_revealed}
-              />
-              {room.profile_revealed && (
-                <div className="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-secondary text-white">
-                  <Check className="h-3 w-3" />
-                </div>
-              )}
-            </div>
-
-            {/* Info */}
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2">
-                <span className="font-medium">
-                  {profile.age}세 · {profile.gender === "male" ? "남" : "여"}
-                </span>
-                {getStatusBadge()}
-              </div>
-              <p className="truncate text-sm text-muted-foreground">
-                {room.lastMessage
-                  ? room.lastMessage.content
-                  : room.status === "pending"
-                    ? isRequester
-                      ? "대화 신청을 보냈어요"
-                      : "대화 신청이 도착했어요"
-                    : profile.bio}
-              </p>
-            </div>
-
-            {/* Time */}
-            <div className="shrink-0 text-xs text-muted-foreground">
-              {room.lastMessage
-                ? formatRelativeTime(room.lastMessage.created_at)
-                : formatRelativeTime(room.created_at)}
-            </div>
-          </CardContent>
-        </Card>
-      </Link>
+      {href ? (
+        <Link href={href}>{cardContent}</Link>
+      ) : (
+        cardContent
+      )}
     </motion.div>
   );
 }

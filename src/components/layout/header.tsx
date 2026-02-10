@@ -18,7 +18,7 @@ interface HeaderProps {
 
 export function Header({ className, transparent }: HeaderProps) {
   const pathname = usePathname();
-  const { user } = useAuth();
+  const { user, isLoading } = useAuth();
   const [unreadCount, setUnreadCount] = useState(0);
   const supabaseRef = useRef(createClient());
 
@@ -90,7 +90,7 @@ export function Header({ className, transparent }: HeaderProps) {
       <div className="mx-auto flex h-14 max-w-lg items-center justify-between px-4">
         <Logo size="sm" />
 
-        <div className="flex items-center gap-2">
+        <div className={`flex items-center gap-2 transition-opacity duration-300 ${isLoading ? "opacity-0" : "opacity-100"}`}>
           {user ? (
             <>
               <Link href="/dashboard">

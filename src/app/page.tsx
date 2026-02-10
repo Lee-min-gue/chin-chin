@@ -393,14 +393,14 @@ export default function HomePage() {
               인스타 스토리 하나로 시작하는 블라인드 소개팅
             </motion.p>
 
-            {/* CTA Button — auth-aware */}
+            {/* CTA Button — auth-aware, hidden until auth resolves */}
             <motion.div
               variants={fadeUp}
               initial="hidden"
               animate="visible"
               transition={{ duration: 0.5, delay: 0.85 }}
+              className={`transition-opacity duration-300 ${isLoading ? "opacity-0" : "opacity-100"}`}
             >
-              {/* Show default state immediately, swap when auth resolves */}
               {isAuthenticated ? (
                 <Button size="lg" fullWidth asChild>
                   <Link href="/create">
