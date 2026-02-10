@@ -1,3 +1,7 @@
+// NOTE: In-memory rate limiting — state is per-isolate on Vercel Edge/Serverless.
+// This provides partial protection (within a single isolate) but does NOT guarantee
+// global rate limiting across all instances. For strict enforcement, migrate to
+// Upstash Redis or Vercel KV.
 const rateLimit = new Map<string, { count: number; resetAt: number }>();
 
 const CLEANUP_INTERVAL = 60 * 1000; // 1 minute

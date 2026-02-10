@@ -73,7 +73,7 @@ export async function requestChat(profileId: string) {
       .eq("requester_id", user.id)
       .gte("created_at", today.toISOString());
 
-    if (count && count >= MAX_DAILY_CHAT_REQUESTS) {
+    if (count !== null && count >= MAX_DAILY_CHAT_REQUESTS) {
       return { error: "오늘은 더 이상 대화를 신청할 수 없어요. 내일 다시 시도해주세요!" };
     }
 
@@ -113,20 +113,18 @@ export async function requestChat(profileId: string) {
 
     const chatRoom = chatRoomData as { id: string };
 
-    // Increment chat request count
-    await supabase
-      .from("profiles")
-      .update({ chat_request_count: profile.chat_request_count + 1 } as never)
-      .eq("id", profileId);
+    // Increment chat request count (atomic)
+    await supabase.rpc("increment_chat_request_count" as never, { profile_id_param: profileId } as never);
 
-    // Create notification for target user
-    await supabase.from("notifications").insert({
+    // Create notification for target user (non-blocking for main flow)
+    const { error: notifError } = await supabase.from("notifications").insert({
       user_id: targetId,
       type: "chat_requested",
       title: "새로운 대화 신청",
       message: `누군가가 대화를 신청했어요! 확인해보세요.`,
       link_url: `/chat?pending=${chatRoom.id}`,
     } as never);
+    if (notifError) console.error("Notification insert error:", notifError);
 
     return {
       success: true,

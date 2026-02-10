@@ -5,6 +5,9 @@ import { CHAT_ROOM_EXPIRY_HOURS, REPORT_REASONS } from "@/lib/constants";
 import { filterContactInfo } from "@/lib/utils";
 import type { ChatRoom, Profile } from "@/types/database";
 
+// @supabase/ssr's createServerClient infers mutation types as `never` due to cookie handler signatures.
+// `as never` on insert/update calls is a required workaround until the library fixes this.
+
 const VALID_REPORT_REASONS = REPORT_REASONS.map((r) => r.value);
 
 export async function acceptChatRequest(roomId: string) {
@@ -44,14 +47,15 @@ export async function acceptChatRequest(roomId: string) {
 
     if (updateError) return { error: "수락에 실패했어요" };
 
-    // Notify requester
-    await supabase.from("notifications").insert({
+    // Notify requester (non-blocking for main flow)
+    const { error: notifError } = await supabase.from("notifications").insert({
       user_id: room.requester_id,
       type: "chat_accepted",
       title: "대화가 시작되었어요!",
       message: "상대방이 대화 신청을 수락했어요. 지금 바로 대화해보세요!",
       link_url: `/chat/${roomId}`,
     } as never);
+    if (notifError) console.error("Notification insert error:", notifError);
 
     return { success: true };
   } catch (error) {
@@ -89,14 +93,15 @@ export async function rejectChatRequest(roomId: string) {
 
     if (updateError) return { error: "거절에 실패했어요" };
 
-    // Notify requester
-    await supabase.from("notifications").insert({
+    // Notify requester (non-blocking for main flow)
+    const { error: notifError } = await supabase.from("notifications").insert({
       user_id: room.requester_id,
       type: "chat_rejected",
       title: "대화 신청 결과",
       message: "아쉽지만 상대방이 정중히 거절했어요.",
       link_url: `/chat`,
     } as never);
+    if (notifError) console.error("Notification insert error:", notifError);
 
     return { success: true };
   } catch (error) {
@@ -246,13 +251,14 @@ export async function requestProfileReveal(roomId: string) {
     const otherUserId =
       room.requester_id === user.id ? room.target_id : room.requester_id;
 
-    await supabase.from("notifications").insert({
+    const { error: notifError } = await supabase.from("notifications").insert({
       user_id: otherUserId,
       type: "reveal_requested",
       title: "프로필 공개 요청",
       message: "상대방이 프로필 공개를 요청했어요!",
       link_url: `/chat/${roomId}`,
     } as never);
+    if (notifError) console.error("Notification insert error:", notifError);
 
     return { success: true };
   } catch (error) {
@@ -305,7 +311,7 @@ export async function acceptProfileReveal(roomId: string) {
     const otherUserId =
       room.requester_id === user.id ? room.target_id : room.requester_id;
 
-    await supabase.from("notifications").insert([
+    const { error: notifError } = await supabase.from("notifications").insert([
       {
         user_id: user.id,
         type: "reveal_accepted",
@@ -321,6 +327,7 @@ export async function acceptProfileReveal(roomId: string) {
         link_url: `/chat/${roomId}`,
       },
     ] as never);
+    if (notifError) console.error("Notification insert error:", notifError);
 
     return {
       success: true,

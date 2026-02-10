@@ -277,7 +277,14 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
-      [_ in never]: never;
+      increment_view_count: {
+        Args: { profile_short_id: string };
+        Returns: undefined;
+      };
+      increment_chat_request_count: {
+        Args: { profile_id_param: string };
+        Returns: undefined;
+      };
     };
     Enums: {
       [_ in never]: never;

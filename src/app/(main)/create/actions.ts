@@ -39,7 +39,7 @@ export async function createProfile(data: ProfileFormData) {
       .eq("creator_id", user.id)
       .gte("created_at", today.toISOString());
 
-    if (count && count >= 10) {
+    if (count !== null && count >= 10) {
       return { error: "오늘은 더 이상 링크를 만들 수 없어요. 내일 다시 시도해주세요!" };
     }
 

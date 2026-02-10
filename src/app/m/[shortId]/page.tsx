@@ -71,11 +71,8 @@ export default async function BlindProfilePage({ params }: Props) {
     return <ExpiredProfileView />;
   }
 
-  // Increment view count (non-blocking)
-  supabase
-    .from("profiles")
-    .update({ view_count: profile.view_count + 1 } as never)
-    .eq("short_id", shortId);
+  // Increment view count (non-blocking, atomic)
+  void supabase.rpc("increment_view_count" as never, { profile_short_id: shortId } as never);
 
   return <BlindProfileView profile={profile} />;
 }

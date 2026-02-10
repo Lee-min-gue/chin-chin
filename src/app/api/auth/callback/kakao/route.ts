@@ -4,6 +4,9 @@ import type { Database } from "@/types/database";
 
 type CookieToSet = { name: string; value: string; options?: CookieOptions };
 
+// Admin client with empty setAll causes Supabase SSR to infer mutation types as `never`.
+// `as never` is required for admin client operations only — regular clients are typed correctly.
+
 interface KakaoTokenResponse {
   access_token: string;
   token_type: string;
@@ -150,35 +153,12 @@ export async function GET(request: NextRequest) {
         },
       });
 
-    let authUserId: string;
-
-    if (createData?.user) {
-      authUserId = createData.user.id;
-    } else if (createError?.message?.includes("already been registered")) {
-      // User already exists - find and update metadata
-      const {
-        data: { users: authUsers },
-      } = await adminSupabase.auth.admin.listUsers();
-      const existingAuthUser = authUsers?.find((u) => u.email === email);
-
-      if (!existingAuthUser) {
-        throw new Error("Auth user not found after registration check");
-      }
-
-      authUserId = existingAuthUser.id;
-
-      await adminSupabase.auth.admin.updateUserById(authUserId, {
-        user_metadata: {
-          kakao_id: kakaoUser.id,
-          nickname,
-          profile_image: profileImage,
-        },
-      });
-    } else {
+    const isNewUser = !!createData?.user;
+    if (!isNewUser && !createError?.message?.includes("already been registered")) {
       throw createError || new Error("Failed to create auth user");
     }
 
-    // 4. Generate magic link and verify OTP to establish session
+    // 4. Generate magic link (also resolves user ID for existing users)
     const { data: linkData, error: linkError } =
       await adminSupabase.auth.admin.generateLink({
         type: "magiclink",
@@ -188,6 +168,20 @@ export async function GET(request: NextRequest) {
     if (linkError || !linkData) {
       console.error("[kakao-callback] generateLink error:", linkError);
       throw linkError || new Error("Failed to generate magic link");
+    }
+
+    // Use createUser's ID for new users, generateLink's user.id for existing
+    const authUserId = createData?.user?.id ?? linkData.user.id;
+
+    // Update metadata for existing users
+    if (!isNewUser) {
+      await adminSupabase.auth.admin.updateUserById(authUserId, {
+        user_metadata: {
+          kakao_id: kakaoUser.id,
+          nickname,
+          profile_image: profileImage,
+        },
+      });
     }
 
     // 5. Verify OTP to establish session
