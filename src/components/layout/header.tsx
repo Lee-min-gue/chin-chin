@@ -6,7 +6,6 @@ import { usePathname } from "next/navigation";
 import { Bell } from "lucide-react";
 import { Logo } from "@/components/common/logo";
 import { Button } from "@/components/ui/button";
-import { Avatar } from "@/components/ui/avatar";
 import { useAuth } from "@/hooks/use-auth";
 import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
@@ -92,26 +91,17 @@ export function Header({ className, transparent }: HeaderProps) {
 
         <div className={`flex items-center gap-2 transition-opacity duration-300 ${isLoading ? "opacity-0" : "opacity-100"}`}>
           {user ? (
-            <>
-              <Link href="/dashboard">
-                <Avatar
-                  src={user.profile_image_url}
-                  alt={user.nickname || "프로필"}
-                  size="sm"
-                />
-              </Link>
-              <Link
-                href="/notifications"
-                className="relative flex h-10 w-10 items-center justify-center rounded-full transition-all duration-200 hover:bg-gray-100"
-              >
-                <Bell className="h-5 w-5 text-muted-foreground" />
-                {unreadCount > 0 && (
-                  <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-white">
-                    {unreadCount > 99 ? "99+" : unreadCount}
-                  </span>
-                )}
-              </Link>
-            </>
+            <Link
+              href="/notifications"
+              className="relative flex h-10 w-10 items-center justify-center rounded-full transition-all duration-200 hover:bg-gray-100"
+            >
+              <Bell className="h-5 w-5 text-muted-foreground" />
+              {unreadCount > 0 && (
+                <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-white">
+                  {unreadCount > 99 ? "99+" : unreadCount}
+                </span>
+              )}
+            </Link>
           ) : (
             <Button variant="ghost" size="sm" asChild>
               <Link href="/login">로그인</Link>

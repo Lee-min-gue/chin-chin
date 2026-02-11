@@ -15,6 +15,7 @@ import type { ProfileFormData } from "@/lib/validations/profile";
 
 interface Props {
   inviteCode: string;
+  matchmakerId: string;
   matchmakerNickname: string;
   matchmakerMessage: string | null;
 }
@@ -27,10 +28,12 @@ const steps = [
 
 export function InviteProfileForm({
   inviteCode,
+  matchmakerId,
   matchmakerNickname,
   matchmakerMessage,
 }: Props) {
   const { user, isLoading: authLoading } = useAuth();
+  const isMatchmaker = user?.id === matchmakerId;
   const { toast } = useToast();
   const [currentStep, setCurrentStep] = useState(0); // 0 = intro, 1-3 = form steps
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -148,9 +151,15 @@ export function InviteProfileForm({
                 <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
               </div>
             ) : user ? (
-              <Button size="lg" onClick={() => setCurrentStep(1)}>
-                프로필 작성하기
-              </Button>
+              isMatchmaker ? (
+                <p className="text-sm text-destructive">
+                  본인이 만든 초대에는 프로필을 작성할 수 없어요.
+                </p>
+              ) : (
+                <Button size="lg" onClick={() => setCurrentStep(1)}>
+                  프로필 작성하기
+                </Button>
+              )
             ) : (
               <Button
                 size="lg"

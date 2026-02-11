@@ -1,6 +1,6 @@
 "use server";
 
-import { createClient } from "@/lib/supabase/server";
+import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { PROFILE_EXPIRY_HOURS } from "@/lib/constants";
 
 export async function activateAndShare(invitationId: string) {
@@ -165,7 +165,10 @@ export async function getBlockedUsers() {
     } = await supabase.auth.getUser();
     if (authError || !user) return { error: "로그인이 필요해요", blocks: [] };
 
-    const { data, error } = await supabase
+    // Use admin client to bypass users RLS (users can only read own record)
+    const adminSupabase = await createAdminClient();
+
+    const { data, error } = await adminSupabase
       .from("blocks")
       .select("*, blocked:users!blocks_blocked_id_fkey(id, nickname, profile_image_url)")
       .eq("blocker_id", user.id)

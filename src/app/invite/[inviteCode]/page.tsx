@@ -73,6 +73,7 @@ export default async function InviteProfilePage({ params }: Props) {
   return (
     <InviteProfileForm
       inviteCode={inviteCode}
+      matchmakerId={invitation.matchmaker_id}
       matchmakerNickname={matchmaker?.nickname || "친구"}
       matchmakerMessage={invitation.matchmaker_message}
     />
