@@ -10,7 +10,7 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
-        hostname: "k.kakaocdn.net",
+        hostname: "**.kakaocdn.net",
       },
     ],
   },

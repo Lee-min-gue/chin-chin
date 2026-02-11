@@ -15,7 +15,7 @@ interface BlockedUser {
     id: string;
     nickname: string | null;
     profile_image_url: string | null;
-  };
+  } | null;
 }
 
 export function BlockedUsers() {
@@ -25,14 +25,30 @@ export function BlockedUsers() {
 
   useEffect(() => {
     async function fetch() {
-      const result = await getBlockedUsers();
-      if (result.blocks) {
-        setBlocks(result.blocks as BlockedUser[]);
+      try {
+        const result = await getBlockedUsers();
+        if (result.error) {
+          toast({
+            title: "오류",
+            description: result.error,
+            variant: "destructive",
+          });
+        }
+        if (result.blocks) {
+          setBlocks(result.blocks as BlockedUser[]);
+        }
+      } catch {
+        toast({
+          title: "오류",
+          description: "차단 목록을 불러올 수 없어요",
+          variant: "destructive",
+        });
+      } finally {
+        setIsLoading(false);
       }
-      setIsLoading(false);
     }
     fetch();
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleUnblock = useCallback(
     async (blockId: string) => {
@@ -84,12 +100,12 @@ export function BlockedUsers() {
           <CardContent className="flex items-center justify-between p-3">
             <div className="flex items-center gap-3">
               <Avatar
-                src={block.blocked.profile_image_url}
+                src={block.blocked?.profile_image_url}
                 alt=""
                 size="sm"
               />
               <span className="text-sm font-medium">
-                {block.blocked.nickname || "사용자"}
+                {block.blocked?.nickname || "사용자"}
               </span>
             </div>
             <Button

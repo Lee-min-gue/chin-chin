@@ -6,6 +6,12 @@ export type Json =
   | { [key: string]: Json | undefined }
   | Json[];
 
+export type ProfilePhoto = {
+  url: string;
+  originalUrl: string;
+  blurEnabled: boolean;
+};
+
 export type Database = {
   public: {
     Tables: {
@@ -67,6 +73,7 @@ export type Database = {
           chat_request_count: number;
           created_at: string;
           updated_at: string;
+          photos: ProfilePhoto[];
         };
         Insert: {
           id?: string;
@@ -93,6 +100,7 @@ export type Database = {
           chat_request_count?: number;
           created_at?: string;
           updated_at?: string;
+          photos?: ProfilePhoto[];
         };
         Update: {
           id?: string;
@@ -119,6 +127,7 @@ export type Database = {
           chat_request_count?: number;
           created_at?: string;
           updated_at?: string;
+          photos?: ProfilePhoto[];
         };
       };
       chat_rooms: {

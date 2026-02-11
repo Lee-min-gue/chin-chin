@@ -1,13 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Eye, MessageCircle, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tag } from "@/components/common/tag";
 import { CountdownTimer } from "@/components/common/countdown-timer";
+import { PhotoCarousel } from "@/components/common/photo-carousel";
+import type { ProfilePhoto } from "@/types/database";
 import { Logo } from "@/components/common/logo";
 import { useToast } from "@/components/ui/toaster";
 import { useAuth } from "@/hooks/use-auth";
@@ -108,34 +109,33 @@ export function BlindProfileView({ profile }: BlindProfileViewProps) {
       </header>
 
       <div className="mx-auto max-w-lg px-4 pb-32">
-        {/* Profile Image */}
+        {/* Profile Image(s) */}
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="relative mb-6 aspect-square overflow-hidden rounded-3xl shadow-strong"
+          className="relative mb-6 overflow-hidden rounded-3xl shadow-strong"
         >
-          <Image
-            src={profile.photo_url}
-            alt="Profile"
-            fill
-            sizes="(max-width: 512px) 100vw, 512px"
-            className="object-cover blur-xl scale-110"
+          <PhotoCarousel
+            photos={
+              profile.photos && profile.photos.length > 0
+                ? profile.photos
+                : [{ url: profile.photo_url, originalUrl: profile.original_photo_url || profile.photo_url, blurEnabled: true } as ProfilePhoto]
+            }
             priority
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-
-          {/* Stats overlay */}
-          <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between text-white">
-            <div className="flex items-center gap-2">
-              <Eye className="h-4 w-4" />
-              <span className="text-sm">{profile.view_count}명이 봤어요</span>
+          >
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
+            <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between text-white pointer-events-none">
+              <div className="flex items-center gap-2">
+                <Eye className="h-4 w-4" />
+                <span className="text-sm">{profile.view_count}명이 봤어요</span>
+              </div>
+              <CountdownTimer
+                expiresAt={profile.expires_at}
+                size="sm"
+                className="text-white"
+              />
             </div>
-            <CountdownTimer
-              expiresAt={profile.expires_at}
-              size="sm"
-              className="text-white"
-            />
-          </div>
+          </PhotoCarousel>
         </motion.div>
 
         {/* Profile Info */}

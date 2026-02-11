@@ -3,7 +3,7 @@
 import { nanoid } from "nanoid";
 import { createClient } from "@/lib/supabase/server";
 import { profileSchema, type ProfileFormData } from "@/lib/validations/profile";
-import { processAndUploadProfileImage } from "@/lib/image-processing";
+import { processAndUploadProfileImages } from "@/lib/image-processing";
 import type { InsertTables, Invitation } from "@/types/database";
 
 export async function submitInviteProfile(
@@ -77,10 +77,10 @@ export async function submitInviteProfile(
       return { error: "프로필 생성에 실패했어요. 다시 시도해주세요." };
     }
 
-    // Process and upload image
-    const { photoUrl, originalPhotoUrl } = await processAndUploadProfileImage(
+    // Process and upload images (다중 사진)
+    const { photos, photoUrl, originalPhotoUrl } = await processAndUploadProfileImages(
       supabase,
-      validData.photo,
+      validData.photos,
       user.id,
       shortId
     );
@@ -93,6 +93,7 @@ export async function submitInviteProfile(
       invitation_id: invitation.id,
       photo_url: photoUrl,
       original_photo_url: originalPhotoUrl,
+      photos,
       age: validData.age,
       gender: validData.gender,
       occupation_category: validData.occupationCategory,

@@ -6,9 +6,10 @@ import {
   MUSIC_GENRES,
 } from "@/lib/constants";
 
-// Step 1: Photo upload
-export const photoSchema = z.object({
-  photo: z
+export const MAX_PHOTOS = 5;
+
+const singlePhotoSchema = z.object({
+  file: z
     .instanceof(File, { message: "사진을 업로드해주세요" })
     .refine((file) => file.size <= 10 * 1024 * 1024, {
       message: "10MB 이하의 사진만 업로드 가능해요",
@@ -18,6 +19,15 @@ export const photoSchema = z.object({
         ["image/jpeg", "image/png", "image/webp"].includes(file.type),
       { message: "JPG, PNG, WebP 형식만 가능해요" }
     ),
+  blurEnabled: z.boolean(),
+});
+
+// Step 1: Photo upload (다중 사진)
+export const photoSchema = z.object({
+  photos: z
+    .array(singlePhotoSchema)
+    .min(1, "사진을 최소 1장 업로드해주세요")
+    .max(MAX_PHOTOS, `사진은 최대 ${MAX_PHOTOS}장까지 업로드 가능해요`),
 });
 
 // Step 2: Basic info
@@ -76,6 +86,7 @@ export const profileSchema = z.object({
   ...preferencesSchema.shape,
 });
 
+export type PhotoItem = z.infer<typeof singlePhotoSchema>;
 export type PhotoFormData = z.infer<typeof photoSchema>;
 export type BasicInfoFormData = z.infer<typeof basicInfoSchema>;
 export type PreferencesFormData = z.infer<typeof preferencesSchema>;

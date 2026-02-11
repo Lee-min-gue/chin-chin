@@ -333,6 +333,7 @@ export async function acceptProfileReveal(roomId: string) {
       success: true,
       profile: {
         originalPhotoUrl: room.profile.original_photo_url,
+        photos: room.profile.photos || [],
         instagramId: room.profile.instagram_id,
         name: room.profile.name,
         interestTags: room.profile.interest_tags,
