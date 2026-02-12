@@ -286,21 +286,19 @@ export default function DashboardPage() {
           <div className="mx-auto flex max-w-lg">
             <button
               onClick={() => setTab("invitations")}
-              className={`flex-1 border-b-2 pb-3 pt-2 text-sm font-medium transition-colors ${
-                tab === "invitations"
+              className={`flex-1 border-b-2 pb-3 pt-2 text-sm font-medium transition-colors ${tab === "invitations"
                   ? "border-primary text-primary"
                   : "border-transparent text-muted-foreground"
-              }`}
+                }`}
             >
               내가 초대한 ({invitations.length})
             </button>
             <button
               onClick={() => setTab("profiles")}
-              className={`flex-1 border-b-2 pb-3 pt-2 text-sm font-medium transition-colors ${
-                tab === "profiles"
+              className={`flex-1 border-b-2 pb-3 pt-2 text-sm font-medium transition-colors ${tab === "profiles"
                   ? "border-primary text-primary"
                   : "border-transparent text-muted-foreground"
-              }`}
+                }`}
             >
               내 프로필 ({selfProfiles.length})
             </button>
@@ -333,9 +331,9 @@ export default function DashboardPage() {
                   <p className="mb-6 text-muted-foreground">
                     친구를 초대해서 소개해보세요!
                   </p>
-                  <Button size="lg" asChild>
+                  <Button asChild>
                     <Link href="/create/invite">
-                      <Send className="mr-2 h-5 w-5" />
+                      <Send className="mr-2 h-4 w-4" />
                       친구 초대하기
                     </Link>
                   </Button>
@@ -611,7 +609,7 @@ export default function DashboardPage() {
         open={deleteTarget !== null}
         onOpenChange={(open) => !open && setDeleteTarget(null)}
       >
-        <DialogContent className="mx-4 max-w-sm">
+        <DialogContent>
           <DialogHeader>
             <DialogTitle>
               {deleteTarget?.type === "invitation" ? "초대를 삭제하시겠어요?" : "프로필을 삭제하시겠어요?"}
@@ -648,7 +646,7 @@ export default function DashboardPage() {
         open={sharingInvitation !== null}
         onOpenChange={(open) => !open && setSharingInvitation(null)}
       >
-        <DialogContent className="mx-4 max-w-sm">
+        <DialogContent>
           <DialogHeader>
             <DialogTitle>프로필이 활성화되었어요!</DialogTitle>
             <DialogDescription>

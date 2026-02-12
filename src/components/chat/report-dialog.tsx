@@ -49,7 +49,7 @@ export function ReportDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="mx-4 max-w-sm">
+      <DialogContent>
         <DialogHeader>
           <DialogTitle>신고하기</DialogTitle>
           <DialogDescription>

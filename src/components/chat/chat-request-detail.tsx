@@ -212,7 +212,7 @@ export function ChatRequestDetail({ room }: ChatRequestDetailProps) {
 
       {/* Reject confirmation dialog */}
       <Dialog open={showRejectDialog} onOpenChange={setShowRejectDialog}>
-        <DialogContent className="mx-4 max-w-sm">
+        <DialogContent>
           <DialogHeader>
             <DialogTitle>대화 신청을 거절하시겠어요?</DialogTitle>
             <DialogDescription>

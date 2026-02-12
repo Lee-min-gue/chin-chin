@@ -192,7 +192,7 @@ export function ChatHeader({
 
       {/* Reveal confirmation dialog */}
       <Dialog open={showRevealDialog} onOpenChange={setShowRevealDialog}>
-        <DialogContent className="mx-4 max-w-sm">
+        <DialogContent>
           <DialogHeader>
             <DialogTitle>프로필 공개를 요청하시겠어요?</DialogTitle>
             <DialogDescription>
@@ -221,7 +221,7 @@ export function ChatHeader({
 
       {/* Block confirmation dialog */}
       <Dialog open={showBlockDialog} onOpenChange={setShowBlockDialog}>
-        <DialogContent className="mx-4 max-w-sm">
+        <DialogContent>
           <DialogHeader>
             <DialogTitle>이 사용자를 차단하시겠어요?</DialogTitle>
             <DialogDescription>

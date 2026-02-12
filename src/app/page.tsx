@@ -401,34 +401,34 @@ export default function HomePage() {
               transition={{ duration: 0.5, delay: 0.85 }}
             >
               <div className={`transition-opacity duration-300 ${isLoading ? "opacity-0" : "opacity-100"}`}>
-              {isAuthenticated ? (
-                <Button size="lg" fullWidth asChild>
-                  <Link href="/create">
-                    시작하기
-                    <ArrowRight className="h-5 w-5" />
-                  </Link>
-                </Button>
-              ) : (
-                <Button size="lg" fullWidth variant="kakao" asChild>
-                  <Link href="/login">
-                    <svg
-                      viewBox="0 0 24 24"
-                      className="h-6 w-6"
-                      fill="currentColor"
-                    >
-                      <path d="M12 3c-5.148 0-9.324 3.39-9.324 7.571 0 2.722 1.804 5.107 4.516 6.449-.199.742-.722 2.687-.826 3.104-.13.525.192.518.404.377.166-.11 2.644-1.8 3.713-2.53.498.073 1.008.112 1.527.112 5.148 0 9.324-3.39 9.324-7.571S17.148 3 12 3z" />
-                    </svg>
-                    카카오톡으로 시작하기
-                  </Link>
-                </Button>
-              )}
+                {isAuthenticated ? (
+                  <Button size="lg" fullWidth asChild>
+                    <Link href="/create">
+                      시작하기
+                      <ArrowRight className="h-5 w-5" />
+                    </Link>
+                  </Button>
+                ) : (
+                  <Button size="lg" fullWidth variant="kakao" asChild>
+                    <Link href="/login">
+                      <svg
+                        viewBox="0 0 24 24"
+                        className="h-6 w-6"
+                        fill="currentColor"
+                      >
+                        <path d="M12 3c-5.148 0-9.324 3.39-9.324 7.571 0 2.722 1.804 5.107 4.516 6.449-.199.742-.722 2.687-.826 3.104-.13.525.192.518.404.377.166-.11 2.644-1.8 3.713-2.53.498.073 1.008.112 1.527.112 5.148 0 9.324-3.39 9.324-7.571S17.148 3 12 3z" />
+                      </svg>
+                      카카오톡으로 시작하기
+                    </Link>
+                  </Button>
+                )}
               </div>
             </motion.div>
           </div>
 
-          {/* Soft accent blush */}
-          <div className="absolute -right-20 top-0 h-80 w-80 rounded-full bg-primary/[0.18] blur-3xl" />
-          <div className="absolute -left-20 bottom-0 h-80 w-80 rounded-full bg-primary/[0.18] blur-3xl" />
+          {/* Soft accent blush — use blur-2xl instead of blur-3xl for better mobile perf */}
+          <div className="absolute -right-20 top-0 h-80 w-80 rounded-full bg-primary/[0.18] blur-2xl" />
+          <div className="absolute -left-20 bottom-0 h-80 w-80 rounded-full bg-primary/[0.18] blur-2xl" />
 
           {/* Bottom fade for smooth transition */}
           <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-white to-transparent" />
@@ -502,56 +502,59 @@ export default function HomePage() {
             </motion.p>
           </div>
 
-          {/* Marquee carousel */}
+          {/* Marquee carousel — pure CSS for smooth performance */}
           <div className="relative">
             {/* Fade edges */}
             <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-16 bg-gradient-to-r from-gray-50 to-transparent" />
             <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-16 bg-gradient-to-l from-gray-50 to-transparent" />
 
-            <motion.div
-              className="flex gap-5"
-              animate={{ x: [0, -(280 * mockProfiles.length + 20 * mockProfiles.length)] }}
-              transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-              style={{ width: "fit-content" }}
-            >
-              {[...mockProfiles, ...mockProfiles, ...mockProfiles, ...mockProfiles].map((profile, i) => (
-                <div key={i} className="w-[280px] shrink-0">
-                  <div className="overflow-hidden rounded-2xl bg-white shadow-medium">
-                    <div
-                      className={`relative h-36 bg-gradient-to-br ${profile.gradient}`}
-                    >
-                      <div className="absolute inset-0 backdrop-blur-xl" />
-                      <div className="absolute bottom-3 left-3 flex items-center gap-1.5">
-                        <span className="rounded-full bg-black/30 px-2.5 py-0.5 text-xs font-medium text-white backdrop-blur-sm">
-                          {profile.age}세 · {profile.gender}
-                        </span>
-                        <span className="rounded-full bg-black/30 px-2.5 py-0.5 text-xs font-medium text-white backdrop-blur-sm">
-                          {profile.occupation}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="p-4">
-                      <p className="mb-3 text-sm text-foreground">
-                        {profile.bio}
-                      </p>
-                      <div className="flex flex-wrap gap-1.5">
-                        {profile.tags.map((tag) => (
-                          <span
-                            key={tag}
-                            className="rounded-full bg-primary-light px-2 py-0.5 text-xs font-medium text-primary"
-                          >
-                            #{tag}
+            <div className="overflow-hidden">
+              <div
+                className="flex gap-5 will-change-transform"
+                style={{
+                  animation: "marquee 25s linear infinite",
+                  width: "fit-content",
+                }}
+              >
+                {[...mockProfiles, ...mockProfiles, ...mockProfiles, ...mockProfiles].map((profile, i) => (
+                  <div key={i} className="w-[280px] shrink-0">
+                    <div className="overflow-hidden rounded-2xl bg-white shadow-medium">
+                      <div
+                        className={`relative h-36 bg-gradient-to-br ${profile.gradient}`}
+                      >
+                        <div className="absolute inset-0 backdrop-blur-xl" />
+                        <div className="absolute bottom-3 left-3 flex items-center gap-1.5">
+                          <span className="rounded-full bg-black/30 px-2.5 py-0.5 text-xs font-medium text-white backdrop-blur-sm">
+                            {profile.age}세 · {profile.gender}
                           </span>
-                        ))}
-                        <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">
-                          {profile.mbti}
-                        </span>
+                          <span className="rounded-full bg-black/30 px-2.5 py-0.5 text-xs font-medium text-white backdrop-blur-sm">
+                            {profile.occupation}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="p-4">
+                        <p className="mb-3 text-sm text-foreground">
+                          {profile.bio}
+                        </p>
+                        <div className="flex flex-wrap gap-1.5">
+                          {profile.tags.map((tag) => (
+                            <span
+                              key={tag}
+                              className="rounded-full bg-primary-light px-2 py-0.5 text-xs font-medium text-primary"
+                            >
+                              #{tag}
+                            </span>
+                          ))}
+                          <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">
+                            {profile.mbti}
+                          </span>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              ))}
-            </motion.div>
+                ))}
+              </div>
+            </div>
           </div>
 
           <motion.p
