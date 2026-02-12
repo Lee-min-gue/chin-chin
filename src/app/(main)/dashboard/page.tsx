@@ -17,7 +17,6 @@ import {
   ChevronUp,
   Share2,
   Instagram,
-  Send,
   Check,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -290,15 +289,9 @@ export default function DashboardPage() {
                 <div className="py-16 text-center">
                   <div className="mb-6 text-6xl">💌</div>
                   <h3 className="mb-2 text-lg font-bold">아직 초대가 없어요</h3>
-                  <p className="mb-6 text-muted-foreground">
+                  <p className="text-muted-foreground">
                     친구를 초대해서 소개해보세요!
                   </p>
-                  <Button asChild>
-                    <Link href="/create/invite">
-                      <Send className="mr-2 h-4 w-4" />
-                      친구 초대하기
-                    </Link>
-                  </Button>
                 </div>
               ) : (
                 invitations.map((inv, index) => (
