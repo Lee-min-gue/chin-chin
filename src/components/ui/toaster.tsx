@@ -43,7 +43,7 @@ const toastVariants = cva(
 const Toast = React.forwardRef<
   React.ElementRef<typeof ToastPrimitives.Root>,
   React.ComponentPropsWithoutRef<typeof ToastPrimitives.Root> &
-    VariantProps<typeof toastVariants>
+  VariantProps<typeof toastVariants>
 >(({ className, variant, ...props }, ref) => {
   return (
     <ToastPrimitives.Root
@@ -143,13 +143,16 @@ const useToastStore = create<ToastState>((set) => ({
 }));
 
 export function useToast() {
-  const { addToast } = useToastStore();
+  const addToast = useToastStore((state) => state.addToast);
 
-  return {
-    toast: (props: Omit<ToastState["toasts"][0], "id">) => {
+  const toast = React.useCallback(
+    (props: Omit<ToastState["toasts"][0], "id">) => {
       addToast(props);
     },
-  };
+    [addToast]
+  );
+
+  return { toast };
 }
 
 export function Toaster() {

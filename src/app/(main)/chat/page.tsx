@@ -98,16 +98,18 @@ function ChatListContent() {
   const [activeTab, setActiveTab] = useState<TabType>("active");
 
   // Check for success message from chat request
+  const hasShownRequestedToast = React.useRef(false);
   useEffect(() => {
     const requested = searchParams.get("requested");
-    if (requested) {
+    if (requested && !hasShownRequestedToast.current) {
+      hasShownRequestedToast.current = true;
       toast({
         title: "대화 신청 완료!",
         description: "상대방의 응답을 기다려주세요",
         variant: "success",
       });
     }
-  }, [searchParams, toast]);
+  }, [searchParams]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (!user) return;
