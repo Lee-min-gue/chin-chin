@@ -34,7 +34,7 @@ const Avatar = React.forwardRef<HTMLDivElement, AvatarProps>(
             src={src}
             alt={alt}
             fill
-            className={cn("object-cover", blurred && "blur-xl")}
+            className={cn("object-cover", blurred && "blur-xl scale-110")}
             sizes={
               size === "xl"
                 ? "128px"
