@@ -66,13 +66,20 @@ export default async function BlindProfilePage({ params }: Props) {
 
   const profile = profileData as Profile;
 
+  // Normalize data to ensure arrays are valid
+  const normalizedProfile: Profile = {
+    ...profile,
+    photos: Array.isArray(profile.photos) ? profile.photos : [],
+    interest_tags: Array.isArray(profile.interest_tags) ? profile.interest_tags : [],
+  };
+
   // Check if expired
-  if (isExpired(profile.expires_at) || !profile.is_active) {
+  if (isExpired(normalizedProfile.expires_at) || !normalizedProfile.is_active) {
     return <ExpiredProfileView />;
   }
 
   // Increment view count (non-blocking, atomic)
   void supabase.rpc("increment_view_count" as never, { profile_short_id: shortId } as never);
 
-  return <BlindProfileView profile={profile} />;
+  return <BlindProfileView profile={normalizedProfile} />;
 }

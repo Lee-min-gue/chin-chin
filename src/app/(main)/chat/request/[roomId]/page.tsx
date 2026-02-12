@@ -32,5 +32,15 @@ export default async function ChatRequestPage({ params }: Props) {
   // If already handled, redirect to chat list
   if (room.status !== "pending") redirect("/chat");
 
-  return <ChatRequestDetail room={room} />;
+  // Normalize profile data to ensure arrays are valid
+  const normalizedRoom = {
+    ...room,
+    profile: {
+      ...room.profile,
+      photos: Array.isArray(room.profile.photos) ? room.profile.photos : [],
+      interest_tags: Array.isArray(room.profile.interest_tags) ? room.profile.interest_tags : [],
+    },
+  };
+
+  return <ChatRequestDetail room={normalizedRoom} />;
 }
