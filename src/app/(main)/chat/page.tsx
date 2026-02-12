@@ -4,7 +4,7 @@ import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
-import { MessageCircle, Clock, Check, Inbox } from "lucide-react";
+import { MessageCircle, MessageSquareHeart, Clock, Check, Inbox } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar } from "@/components/ui/avatar";
 import { Tag } from "@/components/common/tag";
@@ -15,6 +15,7 @@ import { useToast } from "@/components/ui/toaster";
 import { useAuth } from "@/hooks/use-auth";
 import { createClient } from "@/lib/supabase/client";
 import { formatRelativeTime } from "@/lib/utils";
+import { isAdminChat } from "@/lib/admin-chat";
 import type { ChatRoom, Profile, Message } from "@/types/database";
 
 interface ChatRoomWithDetails extends ChatRoom {
@@ -223,6 +224,11 @@ function ChatListContent() {
 
   const filterRooms = (rooms: ChatRoomWithDetails[], tab: TabType) => {
     return rooms.filter((room) => {
+      // Admin rooms only appear in the "active" tab
+      if (isAdminChat(room)) {
+        return tab === "active";
+      }
+
       // profile이 없는 방은 제외
       if (!room.profile) return false;
 
@@ -243,7 +249,12 @@ function ChatListContent() {
     });
   };
 
-  const filteredRooms = filterRooms(chatRooms, activeTab);
+  // Sort: admin rooms pinned at top
+  const filteredRooms = filterRooms(chatRooms, activeTab).sort((a, b) => {
+    const aAdmin = isAdminChat(a) ? 0 : 1;
+    const bAdmin = isAdminChat(b) ? 0 : 1;
+    return aAdmin - bAdmin;
+  });
   const pendingReceived = filterRooms(chatRooms, "received").length;
 
   return (
@@ -358,6 +369,43 @@ function ChatRoomCard({
   currentUserId: string;
   index: number;
 }) {
+  // Admin chat card
+  if (isAdminChat(room)) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: index * 0.05 }}
+      >
+        <Link href={`/chat/${room.id}`}>
+          <Card className="transition-shadow hover:shadow-medium border-primary/20 bg-primary/5">
+            <CardContent className="flex items-center gap-3 p-4">
+              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-primary/10">
+                <MessageSquareHeart className="h-7 w-7 text-primary" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2">
+                  <span className="font-medium">친친 팀</span>
+                  <Tag variant="primary" size="sm">Beta</Tag>
+                </div>
+                <p className="truncate text-sm text-muted-foreground">
+                  {room.lastMessage
+                    ? room.lastMessage.content
+                    : "버그 리포트나 개선 의견을 보내주세요!"}
+                </p>
+              </div>
+              <div className="shrink-0 text-xs text-muted-foreground">
+                {room.lastMessage
+                  ? formatRelativeTime(room.lastMessage.created_at)
+                  : ""}
+              </div>
+            </CardContent>
+          </Card>
+        </Link>
+      </motion.div>
+    );
+  }
+
   const isRequester = room.requester_id === currentUserId;
   const profile = room.profile;
 

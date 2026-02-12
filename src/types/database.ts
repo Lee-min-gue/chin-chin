@@ -133,9 +133,10 @@ export type Database = {
       chat_rooms: {
         Row: {
           id: string;
-          profile_id: string;
+          profile_id: string | null;
           requester_id: string;
           target_id: string;
+          room_type: "normal" | "admin";
           status: "pending" | "active" | "rejected" | "expired" | "completed";
           profile_revealed: boolean;
           profile_revealed_at: string | null;
@@ -146,9 +147,10 @@ export type Database = {
         };
         Insert: {
           id?: string;
-          profile_id: string;
+          profile_id?: string | null;
           requester_id: string;
           target_id: string;
+          room_type?: "normal" | "admin";
           status?: "pending" | "active" | "rejected" | "expired" | "completed";
           profile_revealed?: boolean;
           profile_revealed_at?: string | null;
@@ -159,9 +161,10 @@ export type Database = {
         };
         Update: {
           id?: string;
-          profile_id?: string;
+          profile_id?: string | null;
           requester_id?: string;
           target_id?: string;
+          room_type?: "normal" | "admin";
           status?: "pending" | "active" | "rejected" | "expired" | "completed";
           profile_revealed?: boolean;
           profile_revealed_at?: string | null;

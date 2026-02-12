@@ -6,12 +6,14 @@ import { useAuth } from "@/hooks/use-auth";
 import { useRealtimeMessages } from "@/hooks/use-realtime-messages";
 import { useToast } from "@/components/ui/toaster";
 import { ChatHeader } from "@/components/chat/chat-header";
+import { AdminChatHeader } from "@/components/chat/admin-chat-header";
 import { MessageList } from "@/components/chat/message-list";
 import { ChatInput } from "@/components/chat/chat-input";
 import { ChatExpiredOverlay } from "@/components/chat/chat-expired-overlay";
 import { ProfileRevealBanner } from "@/components/chat/profile-reveal-banner";
 import { ProfileRevealedView } from "@/components/chat/profile-revealed-view";
 import { createClient } from "@/lib/supabase/client";
+import { isAdminChat } from "@/lib/admin-chat";
 import {
   sendMessage,
   markMessagesAsRead,
@@ -24,7 +26,7 @@ interface Props {
   params: Promise<{ roomId: string }>;
 }
 
-type RoomWithProfile = ChatRoom & { profile: Profile };
+type RoomWithProfile = ChatRoom & { profile: Profile | null };
 
 export default function ChatRoomPage({ params }: Props) {
   const { roomId } = use(params);
@@ -203,28 +205,33 @@ export default function ChatRoomPage({ params }: Props) {
     );
   }
 
+  const isAdmin = isAdminChat(room);
   const isActive = room.status === "active";
   const isCompleted = room.status === "completed";
   const isExpired = room.status === "expired";
   const showInput = isActive;
-  const showExpiredOverlay = isExpired || isCompleted;
+  const showExpiredOverlay = !isAdmin && (isExpired || isCompleted);
 
   return (
     <div className="flex h-screen flex-col bg-white">
-      <ChatHeader
-        room={room}
-        currentUserId={user.id}
-        onRequestReveal={handleRequestReveal}
-        onExpire={handleExpire}
-      />
+      {isAdmin ? (
+        <AdminChatHeader />
+      ) : (
+        <ChatHeader
+          room={room as ChatRoom & { profile: Profile }}
+          currentUserId={user.id}
+          onRequestReveal={handleRequestReveal}
+          onExpire={handleExpire}
+        />
+      )}
 
-      {/* Profile revealed card */}
-      {isCompleted && room.profile_revealed && (
+      {/* Profile revealed card (normal chats only) */}
+      {!isAdmin && isCompleted && room.profile_revealed && room.profile && (
         <ProfileRevealedView profile={room.profile} />
       )}
 
-      {/* Reveal request banner */}
-      {room.reveal_requested_by && !room.profile_revealed && (
+      {/* Reveal request banner (normal chats only) */}
+      {!isAdmin && room.reveal_requested_by && !room.profile_revealed && (
         <ProfileRevealBanner
           isRequester={room.reveal_requested_by === user.id}
           onAccept={handleAcceptReveal}
@@ -241,7 +248,9 @@ export default function ChatRoomPage({ params }: Props) {
       />
 
       {/* Input or expired overlay */}
-      {showExpiredOverlay ? (
+      {isAdmin ? (
+        <ChatInput onSend={handleSend} />
+      ) : showExpiredOverlay ? (
         <ChatExpiredOverlay status={isExpired ? "expired" : "completed"} />
       ) : showInput ? (
         <ChatInput onSend={handleSend} disabled={!isActive} />

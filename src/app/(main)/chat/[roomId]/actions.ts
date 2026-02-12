@@ -145,8 +145,10 @@ export async function sendMessage(roomId: string, content: string) {
       return { error: "대화가 종료된 채팅방이에요" };
     }
 
-    // Check expiry server-side
-    if (room.expires_at && new Date(room.expires_at) < new Date()) {
+    const isAdmin = room.room_type === "admin";
+
+    // Check expiry server-side (skip for admin chats)
+    if (!isAdmin && room.expires_at && new Date(room.expires_at) < new Date()) {
       await supabase
         .from("chat_rooms")
         .update({ status: "expired" } as never)
@@ -154,8 +156,10 @@ export async function sendMessage(roomId: string, content: string) {
       return { error: "대화가 만료되었어요" };
     }
 
-    // Filter contact info
-    const { filtered, hasContact } = filterContactInfo(trimmed);
+    // Filter contact info (skip for admin chats)
+    const { filtered, hasContact } = isAdmin
+      ? { filtered: trimmed, hasContact: false }
+      : filterContactInfo(trimmed);
 
     // Insert message
     const { data: messageData, error: insertError } = await supabase

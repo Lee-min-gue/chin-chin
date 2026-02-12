@@ -94,6 +94,9 @@ export const INVITATION_EXPIRY_DAYS = 7;
 // Maximum daily invitations
 export const MAX_DAILY_INVITATIONS = 10;
 
+// Admin user ID for beta feedback chat
+export const ADMIN_USER_ID = process.env.NEXT_PUBLIC_ADMIN_USER_ID || "";
+
 // Report reasons (신고 사유)
 export const REPORT_REASONS = [
   { value: "harassment", label: "불쾌한 언행" },
