@@ -49,7 +49,7 @@ export function BetaFeedbackFab() {
         <button
             onClick={handleClick}
             disabled={isOpening}
-            className="fixed bottom-24 right-4 z-50 flex items-center gap-2 rounded-full bg-gradient-to-br from-primary to-pink-500 py-3 pl-4 pr-5 text-white shadow-lg transition-all hover:scale-105 hover:shadow-xl active:scale-95 disabled:opacity-60"
+            className="fixed bottom-28 right-4 z-50 flex items-center gap-2 rounded-full bg-gradient-to-br from-primary to-pink-500 py-3 pl-4 pr-5 text-white shadow-lg transition-all hover:scale-105 hover:shadow-xl active:scale-95 disabled:opacity-60"
             aria-label="베타 피드백"
         >
             {isOpening ? (
