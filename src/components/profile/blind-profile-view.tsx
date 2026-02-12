@@ -167,7 +167,7 @@ export function BlindProfileView({ profile }: BlindProfileViewProps) {
 
           {/* Interest tags */}
           <div className="mb-4 flex flex-wrap gap-2">
-            {profile.interest_tags.map((tag) => (
+            {Array.isArray(profile.interest_tags) && profile.interest_tags.map((tag) => (
               <Tag key={tag} variant="primary" size="md">
                 #{tag}
               </Tag>
