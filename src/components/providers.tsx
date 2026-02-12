@@ -9,6 +9,7 @@ import {
 } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
+import { BetaFeedbackFab } from "@/components/common/beta-feedback-fab";
 import type { User } from "@/types/database";
 
 // ─── Auth Context ─────────────────────────────────────────
@@ -81,6 +82,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
       <AuthProvider>
         {children}
         <Toaster />
+        <BetaFeedbackFab />
       </AuthProvider>
     </QueryClientProvider>
   );

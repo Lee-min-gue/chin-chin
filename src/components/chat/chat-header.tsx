@@ -24,6 +24,7 @@ interface ChatHeaderProps {
   currentUserId: string;
   onRequestReveal: () => Promise<void>;
   onExpire?: () => void;
+  profileShortId?: string;
 }
 
 export function ChatHeader({
@@ -31,6 +32,7 @@ export function ChatHeader({
   currentUserId,
   onRequestReveal,
   onExpire,
+  profileShortId,
 }: ChatHeaderProps) {
   const router = useRouter();
   const { toast } = useToast();
@@ -110,22 +112,28 @@ export function ChatHeader({
           <ArrowLeft className="h-5 w-5" />
         </button>
 
-        {/* Profile info */}
-        <Avatar
-          src={
-            room.profile_revealed
-              ? profile.original_photo_url
-              : profile.photo_url
-          }
-          alt=""
-          size="sm"
-          blurred={!room.profile_revealed}
-        />
-        <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium truncate">
-            {profile.age}세 · {profile.gender === "male" ? "남" : "여"}
-          </p>
-        </div>
+        {/* Profile info — clickable when shortId available */}
+        <button
+          onClick={() => profileShortId && router.push(`/m/${profileShortId}`)}
+          disabled={!profileShortId}
+          className="flex flex-1 items-center gap-3 min-w-0 disabled:cursor-default"
+        >
+          <Avatar
+            src={
+              room.profile_revealed
+                ? profile.original_photo_url
+                : profile.photo_url
+            }
+            alt=""
+            size="sm"
+            blurred={!room.profile_revealed}
+          />
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium truncate">
+              {profile.age}세 · {profile.gender === "male" ? "남" : "여"}
+            </p>
+          </div>
+        </button>
 
         {/* Timer or reveal button */}
         <div className="flex items-center gap-1">

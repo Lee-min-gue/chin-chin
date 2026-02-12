@@ -222,6 +222,7 @@ export default function ChatRoomPage({ params }: Props) {
           currentUserId={user.id}
           onRequestReveal={handleRequestReveal}
           onExpire={handleExpire}
+          profileShortId={room.profile?.short_id}
         />
       )}
 
@@ -245,6 +246,7 @@ export default function ChatRoomPage({ params }: Props) {
         isLoading={messagesLoading}
         hasMore={hasMore}
         onLoadMore={loadMore}
+        isAdminChat={isAdmin}
       />
 
       {/* Input or expired overlay */}

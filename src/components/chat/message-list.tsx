@@ -11,6 +11,7 @@ interface MessageListProps {
   isLoading: boolean;
   hasMore: boolean;
   onLoadMore: () => Promise<void>;
+  isAdminChat?: boolean;
 }
 
 function isSameDay(a: string, b: string): boolean {
@@ -29,6 +30,7 @@ export function MessageList({
   isLoading,
   hasMore,
   onLoadMore,
+  isAdminChat = false,
 }: MessageListProps) {
   const bottomRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -86,8 +88,20 @@ export function MessageList({
 
   if (messages.length === 0) {
     return (
-      <div className="flex flex-1 items-center justify-center text-muted-foreground">
-        <p className="text-sm">첫 메시지를 보내보세요!</p>
+      <div className="flex flex-1 flex-col items-center justify-center gap-2 px-8 text-center">
+        {isAdminChat ? (
+          <>
+            <span className="text-2xl">💌</span>
+            <p className="text-sm font-medium text-foreground">친친 팀에게 자유롭게 피드백을 남겨주세요!</p>
+            <p className="text-xs text-muted-foreground">버그 리포트, 개선 아이디어, 불편한 점 등<br />무엇이든 환영해요.</p>
+          </>
+        ) : (
+          <>
+            <span className="text-2xl">👋</span>
+            <p className="text-sm font-medium text-foreground">상대방에게 먼저 인사해보세요!</p>
+            <p className="text-xs text-muted-foreground">블라인드 상태에서 대화를 나누고,<br />서로 마음이 맞으면 프로필을 공개해보세요.</p>
+          </>
+        )}
       </div>
     );
   }

@@ -8,7 +8,6 @@ import {
   Plus,
   Eye,
   MessageCircle,
-  MessageSquareHeart,
   Clock,
   Copy,
   Trash2,
@@ -34,7 +33,6 @@ import { useAuth } from "@/hooks/use-auth";
 import { createClient } from "@/lib/supabase/client";
 import { getProfileUrl, isExpired } from "@/lib/utils";
 import { deleteProfile, deleteInvitation, activateAndShare } from "./actions";
-import { getOrCreateAdminChatRoom } from "@/app/(main)/chat/admin/actions";
 import {
   Dialog,
   DialogContent,
@@ -56,7 +54,6 @@ export default function DashboardPage() {
   const { user, signOut, isLoading: authLoading } = useAuth();
   const { toast } = useToast();
   const [tab, setTab] = useState<TabType>("invitations");
-  const [isOpeningAdminChat, setIsOpeningAdminChat] = useState(false);
   const [invitations, setInvitations] = useState<InvitationWithProfile[]>([]);
   const [selfProfiles, setSelfProfiles] = useState<Profile[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -186,21 +183,6 @@ export default function DashboardPage() {
     window.location.href = "/";
   };
 
-  const handleOpenAdminChat = async () => {
-    setIsOpeningAdminChat(true);
-    try {
-      const result = await getOrCreateAdminChatRoom();
-      if (result.error) {
-        toast({ title: "오류", description: result.error, variant: "destructive" });
-        return;
-      }
-      if (result.roomId) {
-        router.push(`/chat/${result.roomId}`);
-      }
-    } finally {
-      setIsOpeningAdminChat(false);
-    }
-  };
 
   const handleInstagramShare = async (shortId: string) => {
     const url = getProfileUrl(shortId);
@@ -259,27 +241,7 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Beta Feedback */}
-        <div className="bg-white px-5 py-3 shadow-[0_1px_0_0_rgba(0,0,0,0.06)]">
-          <div className="mx-auto max-w-lg">
-            <button
-              onClick={handleOpenAdminChat}
-              disabled={isOpeningAdminChat}
-              className="flex w-full items-center gap-3 rounded-xl bg-primary/5 border border-primary/20 px-4 py-3 transition-colors hover:bg-primary/10 disabled:opacity-50"
-            >
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10">
-                <MessageSquareHeart className="h-5 w-5 text-primary" />
-              </div>
-              <div className="flex-1 text-left">
-                <p className="text-sm font-medium">베타 피드백</p>
-                <p className="text-xs text-muted-foreground">버그 리포트 & 개선 의견</p>
-              </div>
-              {isOpeningAdminChat && (
-                <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-              )}
-            </button>
-          </div>
-        </div>
+
 
         {/* Tab switcher */}
         <div className="bg-white px-5 pb-0 pt-2 shadow-[0_1px_0_0_rgba(0,0,0,0.06)]">
@@ -287,8 +249,8 @@ export default function DashboardPage() {
             <button
               onClick={() => setTab("invitations")}
               className={`flex-1 border-b-2 pb-3 pt-2 text-sm font-medium transition-colors ${tab === "invitations"
-                  ? "border-primary text-primary"
-                  : "border-transparent text-muted-foreground"
+                ? "border-primary text-primary"
+                : "border-transparent text-muted-foreground"
                 }`}
             >
               내가 초대한 ({invitations.length})
@@ -296,8 +258,8 @@ export default function DashboardPage() {
             <button
               onClick={() => setTab("profiles")}
               className={`flex-1 border-b-2 pb-3 pt-2 text-sm font-medium transition-colors ${tab === "profiles"
-                  ? "border-primary text-primary"
-                  : "border-transparent text-muted-foreground"
+                ? "border-primary text-primary"
+                : "border-transparent text-muted-foreground"
                 }`}
             >
               내 프로필 ({selfProfiles.length})
