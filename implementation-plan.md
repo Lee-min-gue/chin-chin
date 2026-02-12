@@ -840,6 +840,16 @@ test('주선자가 프로필을 생성하고 공유한다', async ({ page }) => 
 - [x] `bodySizeLimit` 10mb → 50mb 증가
 - [x] Vercel 프로덕션 배포 완료
 
+### Phase 14-2 (다중 사진 Vercel 페이로드 제한 근본 수정) ✅
+- [x] 근본 원인 확인: Vercel 서버리스 함수 요청 본문 크기 제한(~4.5MB)으로 2장+ 사진 실패
+- [x] 아키텍처 변경: 클라이언트에서 Supabase Storage 직접 업로드 → 서버 액션에 경로만 전달
+- [x] `processBlurForUploadedPhotos()`: 스토리지 다운로드 → sharp 블러 → 재업로드
+- [x] `create/self/page.tsx`, `invite-profile-form.tsx`: 클라이언트 직접 업로드 로직 추가
+- [x] `create/self/actions.ts`, `invite/actions.ts`: FormData 파싱 제거, path 기반 처리로 변경
+- [x] 서버 액션에 storage path 소유자 검증 추가 (user.id prefix check)
+- [x] `next.config.ts`: 불필요한 `bodySizeLimit: 50mb` 설정 제거
+- [x] Vercel 프로덕션 배포 완료
+
 ---
 
 **Document End**
