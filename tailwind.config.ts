@@ -52,7 +52,7 @@ const config: Config = {
       },
       fontFamily: {
         sans: ["Pretendard", "system-ui", "-apple-system", "sans-serif"],
-        display: ["var(--font-righteous)", "cursive"],
+        display: ["Pretendard", "system-ui", "-apple-system", "sans-serif"],
       },
       fontSize: {
         xs: ["0.75rem", { lineHeight: "1rem" }],

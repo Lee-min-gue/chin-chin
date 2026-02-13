@@ -1,14 +1,6 @@
 import type { Metadata, Viewport } from "next";
-import { Righteous } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/providers";
-
-const righteous = Righteous({
-  weight: "400",
-  subsets: ["latin"],
-  variable: "--font-righteous",
-  display: "swap",
-});
 
 export const metadata: Metadata = {
   title: {
@@ -80,9 +72,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ko" suppressHydrationWarning>
-      <body
-        className={`${righteous.variable} font-sans`}
-      >
+      <body className="font-sans">
         <Providers>{children}</Providers>
       </body>
     </html>

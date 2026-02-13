@@ -2,7 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { updateSession } from "@/lib/supabase/middleware";
 import { checkRateLimit } from "@/lib/rate-limit";
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   // Rate limit auth callback to prevent abuse
   if (request.nextUrl.pathname.startsWith("/api/auth/callback")) {
     const ip = request.headers.get("x-forwarded-for")?.split(",")[0] || "unknown";
