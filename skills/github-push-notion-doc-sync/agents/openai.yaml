@@ -1,0 +1,4 @@
+interface:
+  display_name: "문서 동기화"
+  short_description: "GitHub 푸시 후 로컬/Notion 개발 문서를 동기화한다."
+  default_prompt: "Use $github-push-notion-doc-sync to sync implementation-plan.md, chinchin-prd.md, and the two Notion project docs after push."
